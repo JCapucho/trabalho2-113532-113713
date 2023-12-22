@@ -555,6 +555,17 @@ int GraphCheckInvariants(const Graph *g) {
                           (g->isDigraph && v->inDegree != g->numVertices - 1)))
       return 0;
 
+    // Search trough all edges
+    ListMoveToHead(v->edgesList);
+    for (unsigned int i = 0; i < ListGetSize(v->edgesList);
+         ListMoveToNext(v->edgesList), i++) {
+      const struct _Edge *edge = ListGetCurrentItem(v->edgesList);
+
+      // Check that there are no loop edges
+      if (v->id == edge->adjVertex)
+        return 0;
+    }
+
     // TODO: Check that bigraphs mirror the edges
     // if (!g->isDigraph) {
     //   ListMoveToHead(v->edgesList);
