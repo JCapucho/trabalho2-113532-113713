@@ -178,10 +178,13 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
     unsigned int *adjacents = GraphGetAdjacentsTo(g, new_vertex);
     if (adjacents == NULL) {
       GraphTopoSortDestroy(&topoSort);
+      topoSort = NULL;
       return NULL;
     }
-
-    for (unsigned int i = 1; i <= adjacents[0]; i++) {
+    int out_degree = adjacents[0];
+    if (out_degree == 0)
+      continue;
+    for (int i = 1; i < out_degree + 1; i++) {
       unsigned int adjacent = adjacents[i];
       topoSort->numIncomingEdges[adjacent]--;
     }
