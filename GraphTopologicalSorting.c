@@ -47,9 +47,6 @@ static GraphTopoSort *_create(Graph *g) {
     p = NULL;
     abort();
   }
-  for (int i = 0; i < num_vertices; i++) {
-    p->marked[i] = -1;
-  }
   p->vertexSequence = calloc(num_vertices, sizeof(unsigned int));
   if (p->vertexSequence == NULL) {
     perror("Error creating the auxiliary struct!");
