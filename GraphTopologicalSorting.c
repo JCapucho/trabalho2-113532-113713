@@ -205,13 +205,62 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
-
   GraphTopoSort *topoSort = _create(g);
+  if (topoSort == NULL)
+    return NULL;
+
+  // Allocate the queue with the number of vertices since that's the largest
+  // possible size.
+  Queue *queue = QueueCreate(topoSort->numVertices);
+  if (queue == NULL) {
+    GraphTopoSortDestroy(&topoSort);
+    return NULL;
+  }
+
+  for (unsigned int v = 0; v < topoSort->numVertices; v++) {
+    unsigned int inDegree = GraphGetVertexInDegree(g, v);
+    topoSort->numIncomingEdges[v] = inDegree;
+
+    if (inDegree == 0)
+      QueueEnqueue(queue, v);
+  }
 
   // Build the topological sorting
+  unsigned int resultEnd = 0;
+  while (!QueueIsEmpty(queue)) {
+    // Remove the element from the queue for processing
+    unsigned int v = QueueDequeue(queue);
 
-  // TO BE COMPLETED
-  //...
+    unsigned int *adjacents = GraphGetAdjacentsTo(g, v);
+    if (adjacents == NULL) {
+      QueueDestroy(&queue);
+      GraphTopoSortDestroy(&topoSort);
+      return NULL;
+    }
+
+    // Decrement the inDegree of all adjacent vertices
+    for (unsigned int j = 1; j <= adjacents[0]; j++) {
+      unsigned int w = adjacents[j];
+
+      topoSort->numIncomingEdges[w]--;
+      // Add the adjcent vertex to the queue if it no longer has any incident
+      // edges
+      if (topoSort->numIncomingEdges[w] == 0)
+        QueueEnqueue(queue, w);
+    }
+
+    // Emit the vertex
+    topoSort->vertexSequence[resultEnd] = v;
+    resultEnd++;
+
+    // Free the adjacency list
+    free(adjacents);
+  }
+
+  // Check that all vertices were emitted, otherwise the sorting didn't finish
+  topoSort->validResult = resultEnd == topoSort->numVertices;
+
+  QueueDestroy(&queue);
 
   return topoSort;
 }
