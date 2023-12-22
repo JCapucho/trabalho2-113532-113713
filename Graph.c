@@ -182,10 +182,10 @@ Graph *GraphCopy(const Graph *g) {
   new_g->numVertices = 0;
 
   // Copy all the vertices
-  ListMoveToHead(new_g->verticesList);
+  ListMoveToHead(g->verticesList);
   while (new_g->numVertices != g->numVertices) {
     // Get the vertex from the old graph
-    const struct _Vertex *old_v = ListGetCurrentItem(new_g->verticesList);
+    const struct _Vertex *old_v = ListGetCurrentItem(g->verticesList);
 
     // Allocate the copy vertex
     struct _Vertex *v = (struct _Vertex *)malloc(sizeof(struct _Vertex));
@@ -210,11 +210,11 @@ Graph *GraphCopy(const Graph *g) {
     new_g->numVertices++;
 
     // Copy all the edges
-    ListMoveToHead(v->edgesList);
-    for (unsigned int i = 0; i < ListGetSize(v->edgesList);
-         ListMoveToNext(v->edgesList), i++) {
+    ListMoveToHead(old_v->edgesList);
+    for (unsigned int i = 0; i < ListGetSize(old_v->edgesList);
+         ListMoveToNext(old_v->edgesList), i++) {
       // Get the edge from the old vertex
-      const struct _Edge *old_edge = ListGetCurrentItem(v->edgesList);
+      const struct _Edge *old_edge = ListGetCurrentItem(old_v->edgesList);
 
       // Allocate the copy edge
       struct _Edge *edge = (struct _Edge *)malloc(sizeof(struct _Edge));
@@ -231,7 +231,7 @@ Graph *GraphCopy(const Graph *g) {
     }
 
     // Move to the next vertex
-    ListMoveToNext(new_g->verticesList);
+    ListMoveToNext(g->verticesList);
   }
 
   return new_g;
