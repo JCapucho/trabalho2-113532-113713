@@ -9,6 +9,7 @@
 #include "Graph.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -573,6 +574,32 @@ int GraphRemoveEdge(Graph *g, unsigned int v, unsigned int w) {
   }
 
   return 0;
+}
+
+double GraphGetEdgeWeight(const Graph *g, unsigned int v, unsigned int w) {
+  assert(g != NULL && g->isWeighted);
+
+  // Check that the vertices are valid IDs.
+  if (v >= g->numVertices || w >= g->numVertices)
+    return NAN;
+
+  // Fetch the vertex `v`
+  ListMove(g->verticesList, v);
+  struct _Vertex *vertex = ListGetCurrentItem(g->verticesList);
+
+  // Searches trough all edges of the vertex
+  ListMoveToHead(vertex->edgesList);
+  for (unsigned int i = 0; i < ListGetSize(vertex->edgesList);
+       ListMoveToNext(vertex->edgesList), i++) {
+    struct _Edge *edge = ListGetCurrentItem(vertex->edgesList);
+
+    // The edge that connects to `w` was found
+    if (edge->adjVertex == w) {
+      return edge->weight;
+    }
+  }
+
+  return NAN;
 }
 
 // CHECKING

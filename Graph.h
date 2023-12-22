@@ -13,82 +13,87 @@
 
 typedef struct _GraphHeader Graph;
 
-Graph* GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted);
+Graph *GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted);
 
-Graph* GraphCreateComplete(unsigned int numVertices, int isDigraph);
+Graph *GraphCreateComplete(unsigned int numVertices, int isDigraph);
 
-void GraphDestroy(Graph** p);
+void GraphDestroy(Graph **p);
 
-Graph* GraphCopy(const Graph* g);
+Graph *GraphCopy(const Graph *g);
 
-Graph* GraphFromFile(FILE* f);
+Graph *GraphFromFile(FILE *f);
 
 // Graph
 
-int GraphIsDigraph(const Graph* g);
+int GraphIsDigraph(const Graph *g);
 
-int GraphIsComplete(const Graph* g);
+int GraphIsComplete(const Graph *g);
 
-int GraphIsWeighted(const Graph* g);
+int GraphIsWeighted(const Graph *g);
 
-unsigned int GraphGetNumVertices(const Graph* g);
+unsigned int GraphGetNumVertices(const Graph *g);
 
-unsigned int GraphGetNumEdges(const Graph* g);
-
-//
-// For a graph
-//
-double GraphGetAverageDegree(const Graph* g);
+unsigned int GraphGetNumEdges(const Graph *g);
 
 //
 // For a graph
 //
-unsigned int GraphGetMaxDegree(const Graph* g);
+double GraphGetAverageDegree(const Graph *g);
+
+//
+// For a graph
+//
+unsigned int GraphGetMaxDegree(const Graph *g);
 
 //
 // For a digraph
 //
-unsigned int GraphGetMaxOutDegree(const Graph* g);
+unsigned int GraphGetMaxOutDegree(const Graph *g);
 
 // Vertices
 
-unsigned int* GraphGetAdjacentsTo(const Graph* g, unsigned int v);
+unsigned int *GraphGetAdjacentsTo(const Graph *g, unsigned int v);
 
 // Vertices distances
-double* GraphGetDistancesToAdjacents(const Graph* g, unsigned int v);
+double *GraphGetDistancesToAdjacents(const Graph *g, unsigned int v);
 
 //
 // For a graph
 //
-unsigned int GraphGetVertexDegree(Graph* g, unsigned int v);
+unsigned int GraphGetVertexDegree(Graph *g, unsigned int v);
 
 //
 // For a digraph
 //
-unsigned int GraphGetVertexOutDegree(Graph* g, unsigned int v);
+unsigned int GraphGetVertexOutDegree(Graph *g, unsigned int v);
 
 //
 // For a digraph
 //
-unsigned int GraphGetVertexInDegree(Graph* g, unsigned int v);
+unsigned int GraphGetVertexInDegree(Graph *g, unsigned int v);
 
 // Edges
 
-int GraphAddEdge(Graph* g, unsigned int v, unsigned int w);
+int GraphAddEdge(Graph *g, unsigned int v, unsigned int w);
 
-int GraphAddWeightedEdge(Graph* g, unsigned int v, unsigned int w,
+int GraphAddWeightedEdge(Graph *g, unsigned int v, unsigned int w,
                          double weight);
 
-int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w);
+int GraphRemoveEdge(Graph *g, unsigned int v, unsigned int w);
+
+//
+// For a weighted graph
+//
+double GraphGetEdgeWeight(const Graph *g, unsigned int v, unsigned int w);
 
 // CHECKING
 
-int GraphCheckInvariants(const Graph* g);
+int GraphCheckInvariants(const Graph *g);
 
 // DISPLAYING on the console
 
-void GraphDisplay(const Graph* g);
+void GraphDisplay(const Graph *g);
 
-void GraphListAdjacents(const Graph* g, unsigned int v);
+void GraphListAdjacents(const Graph *g, unsigned int v);
 
-#endif  // _GRAPH_
+#endif // _GRAPH_
