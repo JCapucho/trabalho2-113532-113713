@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "SortedList.h"
 #include "instrumentation.h"
@@ -19,7 +20,7 @@ struct _Vertex {
   unsigned int id;
   unsigned int inDegree;
   unsigned int outDegree;
-  List* edgesList;
+  List *edgesList;
 };
 
 struct _Edge {
@@ -33,30 +34,31 @@ struct _GraphHeader {
   int isWeighted;
   unsigned int numVertices;
   unsigned int numEdges;
-  List* verticesList;
+  List *verticesList;
 };
 
 // The comparator for the VERTICES LIST
 
-int graphVerticesComparator(const void* p1, const void* p2) {
-  unsigned int v1 = ((struct _Vertex*)p1)->id;
-  unsigned int v2 = ((struct _Vertex*)p2)->id;
+int graphVerticesComparator(const void *p1, const void *p2) {
+  unsigned int v1 = ((struct _Vertex *)p1)->id;
+  unsigned int v2 = ((struct _Vertex *)p2)->id;
   int d = v1 - v2;
   return (d > 0) - (d < 0);
 }
 
 // The comparator for the EDGES LISTS
 
-int graphEdgesComparator(const void* p1, const void* p2) {
-  unsigned int v1 = ((struct _Edge*)p1)->adjVertex;
-  unsigned int v2 = ((struct _Edge*)p2)->adjVertex;
+int graphEdgesComparator(const void *p1, const void *p2) {
+  unsigned int v1 = ((struct _Edge *)p1)->adjVertex;
+  unsigned int v2 = ((struct _Edge *)p2)->adjVertex;
   int d = v1 - v2;
   return (d > 0) - (d < 0);
 }
 
-Graph* GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted) {
-  Graph* g = (Graph*)malloc(sizeof(struct _GraphHeader));
-  if (g == NULL) abort();
+Graph *GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted) {
+  Graph *g = (Graph *)malloc(sizeof(struct _GraphHeader));
+  if (g == NULL)
+    abort();
 
   g->isDigraph = isDigraph;
   g->isComplete = 0;
@@ -68,8 +70,9 @@ Graph* GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted) {
   g->verticesList = ListCreate(graphVerticesComparator);
 
   for (unsigned int i = 0; i < numVertices; i++) {
-    struct _Vertex* v = (struct _Vertex*)malloc(sizeof(struct _Vertex));
-    if (v == NULL) abort();
+    struct _Vertex *v = (struct _Vertex *)malloc(sizeof(struct _Vertex));
+    if (v == NULL)
+      abort();
 
     v->id = i;
     v->inDegree = 0;
@@ -85,23 +88,24 @@ Graph* GraphCreate(unsigned int numVertices, int isDigraph, int isWeighted) {
   return g;
 }
 
-Graph* GraphCreateComplete(unsigned int numVertices, int isDigraph) {
-  Graph* g = GraphCreate(numVertices, isDigraph, 0);
+Graph *GraphCreateComplete(unsigned int numVertices, int isDigraph) {
+  Graph *g = GraphCreate(numVertices, isDigraph, 0);
 
   g->isComplete = 1;
 
-  List* vertices = g->verticesList;
+  List *vertices = g->verticesList;
   ListMoveToHead(vertices);
   unsigned int i = 0;
   for (; i < g->numVertices; ListMoveToNext(vertices), i++) {
-    struct _Vertex* v = ListGetCurrentItem(vertices);
-    List* edges = v->edgesList;
+    struct _Vertex *v = ListGetCurrentItem(vertices);
+    List *edges = v->edgesList;
     for (unsigned int j = 0; j < g->numVertices; j++) {
       if (i == j) {
         continue;
       }
-      struct _Edge* new = (struct _Edge*)malloc(sizeof(struct _Edge));
-      if (new == NULL) abort();
+      struct _Edge *new = (struct _Edge *)malloc(sizeof(struct _Edge));
+      if (new == NULL)
+        abort();
       new->adjVertex = j;
       new->weight = 1;
 
@@ -123,23 +127,23 @@ Graph* GraphCreateComplete(unsigned int numVertices, int isDigraph) {
   return g;
 }
 
-void GraphDestroy(Graph** p) {
+void GraphDestroy(Graph **p) {
   assert(*p != NULL);
-  Graph* g = *p;
+  Graph *g = *p;
 
-  List* vertices = g->verticesList;
+  List *vertices = g->verticesList;
   if (ListIsEmpty(vertices) == 0) {
     ListMoveToHead(vertices);
     unsigned int i = 0;
     for (; i < g->numVertices; ListMoveToNext(vertices), i++) {
-      struct _Vertex* v = ListGetCurrentItem(vertices);
+      struct _Vertex *v = ListGetCurrentItem(vertices);
 
-      List* edges = v->edgesList;
+      List *edges = v->edgesList;
       if (ListIsEmpty(edges) == 0) {
         unsigned int i = 0;
         ListMoveToHead(edges);
         for (; i < ListGetSize(edges); ListMoveToNext(edges), i++) {
-          struct _Edge* e = ListGetCurrentItem(edges);
+          struct _Edge *e = ListGetCurrentItem(edges);
           free(e);
         }
       }
@@ -154,15 +158,84 @@ void GraphDestroy(Graph** p) {
   *p = NULL;
 }
 
-Graph* GraphCopy(const Graph* g) {
+Graph *GraphCopy(const Graph *g) {
   assert(g != NULL);
 
-  // TO BE COMPLETED !!
+  // Allocate the copy graph header
+  Graph *new_g = (Graph *)malloc(sizeof(struct _GraphHeader));
+  if (new_g == NULL)
+    return NULL;
 
-  return NULL;
+  // Copy the graph header to the one we just allocated
+  memcpy(new_g, g, sizeof(struct _GraphHeader));
+
+  // Create a new vertice list
+  new_g->verticesList = ListCreate(graphVerticesComparator);
+  if (new_g->verticesList == NULL) {
+    free(new_g);
+    return NULL;
+  }
+
+  // Reset the number of vertices
+  new_g->numVertices = 0;
+
+  // Copy all the vertices
+  ListMoveToHead(new_g->verticesList);
+  while (new_g->numVertices != g->numVertices) {
+    // Get the vertex from the old graph
+    const struct _Vertex *old_v = ListGetCurrentItem(new_g->verticesList);
+
+    // Allocate the copy vertex
+    struct _Vertex *v = (struct _Vertex *)malloc(sizeof(struct _Vertex));
+    if (v == NULL) {
+      GraphDestroy(&new_g);
+      return NULL;
+    }
+
+    // Copy the old vertex to the one we just allocated
+    memcpy(v, old_v, sizeof(struct _Vertex));
+
+    // Create a new edge list
+    v->edgesList = ListCreate(graphEdgesComparator);
+    if (v->edgesList == NULL) {
+      free(v);
+      GraphDestroy(&new_g);
+      return NULL;
+    }
+
+    // Add the copied vertex to the new vertice list
+    ListInsert(new_g->verticesList, v);
+    new_g->numVertices++;
+
+    // Copy all the edges
+    ListMoveToHead(v->edgesList);
+    for (unsigned int i = 0; i < ListGetSize(v->edgesList);
+         ListMoveToNext(v->edgesList), i++) {
+      // Get the edge from the old vertex
+      const struct _Edge *old_edge = ListGetCurrentItem(v->edgesList);
+
+      // Allocate the copy edge
+      struct _Edge *edge = (struct _Edge *)malloc(sizeof(struct _Edge));
+      if (edge == NULL) {
+        GraphDestroy(&new_g);
+        return NULL;
+      }
+
+      // Copy the old edge to the one we just allocated
+      memcpy(edge, old_edge, sizeof(struct _Edge));
+
+      // Add the copied edege to the new edges list
+      ListInsert(v->edgesList, edge);
+    }
+
+    // Move to the next vertex
+    ListMoveToNext(new_g->verticesList);
+  }
+
+  return new_g;
 }
 
-Graph* GraphFromFile(FILE* f) {
+Graph *GraphFromFile(FILE *f) {
   assert(f != NULL);
 
   // TO BE COMPLETED !!
@@ -172,33 +245,34 @@ Graph* GraphFromFile(FILE* f) {
 
 // Graph
 
-int GraphIsDigraph(const Graph* g) { return g->isDigraph; }
+int GraphIsDigraph(const Graph *g) { return g->isDigraph; }
 
-int GraphIsComplete(const Graph* g) { return g->isComplete; }
+int GraphIsComplete(const Graph *g) { return g->isComplete; }
 
-int GraphIsWeighted(const Graph* g) { return g->isWeighted; }
+int GraphIsWeighted(const Graph *g) { return g->isWeighted; }
 
-unsigned int GraphGetNumVertices(const Graph* g) { return g->numVertices; }
+unsigned int GraphGetNumVertices(const Graph *g) { return g->numVertices; }
 
-unsigned int GraphGetNumEdges(const Graph* g) { return g->numEdges; }
+unsigned int GraphGetNumEdges(const Graph *g) { return g->numEdges; }
 
 //
 // For a graph
 //
-double GraphGetAverageDegree(const Graph* g) {
+double GraphGetAverageDegree(const Graph *g) {
   assert(g->isDigraph == 0);
   return 2.0 * (double)g->numEdges / (double)g->numVertices;
 }
 
-static unsigned int _GetMaxDegree(const Graph* g) {
-  List* vertices = g->verticesList;
-  if (ListIsEmpty(vertices)) return 0;
+static unsigned int _GetMaxDegree(const Graph *g) {
+  List *vertices = g->verticesList;
+  if (ListIsEmpty(vertices))
+    return 0;
 
   unsigned int maxDegree = 0;
   ListMoveToHead(vertices);
   unsigned int i = 0;
   for (; i < g->numVertices; ListMoveToNext(vertices), i++) {
-    struct _Vertex* v = ListGetCurrentItem(vertices);
+    struct _Vertex *v = ListGetCurrentItem(vertices);
     if (v->outDegree > maxDegree) {
       maxDegree = v->outDegree;
     }
@@ -209,7 +283,7 @@ static unsigned int _GetMaxDegree(const Graph* g) {
 //
 // For a graph
 //
-unsigned int GraphGetMaxDegree(const Graph* g) {
+unsigned int GraphGetMaxDegree(const Graph *g) {
   assert(g->isDigraph == 0);
   return _GetMaxDegree(g);
 }
@@ -217,7 +291,7 @@ unsigned int GraphGetMaxDegree(const Graph* g) {
 //
 // For a digraph
 //
-unsigned int GraphGetMaxOutDegree(const Graph* g) {
+unsigned int GraphGetMaxOutDegree(const Graph *g) {
   assert(g->isDigraph == 1);
   return _GetMaxDegree(g);
 }
@@ -229,24 +303,24 @@ unsigned int GraphGetMaxOutDegree(const Graph* g) {
 // element 0, stores the number of adjacent vertices
 // and is followed by indices of the adjacent vertices
 //
-unsigned int* GraphGetAdjacentsTo(const Graph* g, unsigned int v) {
+unsigned int *GraphGetAdjacentsTo(const Graph *g, unsigned int v) {
   assert(v < g->numVertices);
 
   // Node in the list of vertices
-  List* vertices = g->verticesList;
+  List *vertices = g->verticesList;
   ListMove(vertices, v);
-  struct _Vertex* vPointer = ListGetCurrentItem(vertices);
+  struct _Vertex *vPointer = ListGetCurrentItem(vertices);
   unsigned int numAdjVertices = vPointer->outDegree;
 
-  unsigned int* adjacent =
-      (unsigned int*)calloc(1 + numAdjVertices, sizeof(unsigned int));
+  unsigned int *adjacent =
+      (unsigned int *)calloc(1 + numAdjVertices, sizeof(unsigned int));
 
   if (numAdjVertices > 0) {
     adjacent[0] = numAdjVertices;
-    List* adjList = vPointer->edgesList;
+    List *adjList = vPointer->edgesList;
     ListMoveToHead(adjList);
     for (unsigned int i = 0; i < numAdjVertices; ListMoveToNext(adjList), i++) {
-      struct _Edge* ePointer = ListGetCurrentItem(adjList);
+      struct _Edge *ePointer = ListGetCurrentItem(adjList);
       adjacent[i + 1] = ePointer->adjVertex;
     }
   }
@@ -259,23 +333,23 @@ unsigned int* GraphGetAdjacentsTo(const Graph* g, unsigned int v) {
 // element 0, stores the number of adjacent vertices
 // and is followed by the distances to the adjacent vertices
 //
-double* GraphGetDistancesToAdjacents(const Graph* g, unsigned int v) {
+double *GraphGetDistancesToAdjacents(const Graph *g, unsigned int v) {
   assert(v < g->numVertices);
 
   // Node in the list of vertices
-  List* vertices = g->verticesList;
+  List *vertices = g->verticesList;
   ListMove(vertices, v);
-  struct _Vertex* vPointer = ListGetCurrentItem(vertices);
+  struct _Vertex *vPointer = ListGetCurrentItem(vertices);
   unsigned int numAdjVertices = vPointer->outDegree;
 
-  double* distance = (double*)calloc(1 + numAdjVertices, sizeof(double));
+  double *distance = (double *)calloc(1 + numAdjVertices, sizeof(double));
 
   if (numAdjVertices > 0) {
     distance[0] = numAdjVertices;
-    List* adjList = vPointer->edgesList;
+    List *adjList = vPointer->edgesList;
     ListMoveToHead(adjList);
     for (unsigned int i = 0; i < numAdjVertices; ListMoveToNext(adjList), i++) {
-      struct _Edge* ePointer = ListGetCurrentItem(adjList);
+      struct _Edge *ePointer = ListGetCurrentItem(adjList);
       distance[i + 1] = ePointer->weight;
     }
   }
@@ -286,12 +360,12 @@ double* GraphGetDistancesToAdjacents(const Graph* g, unsigned int v) {
 //
 // For a graph
 //
-unsigned int GraphGetVertexDegree(Graph* g, unsigned int v) {
+unsigned int GraphGetVertexDegree(Graph *g, unsigned int v) {
   assert(g->isDigraph == 0);
   assert(v < g->numVertices);
 
   ListMove(g->verticesList, v);
-  struct _Vertex* p = ListGetCurrentItem(g->verticesList);
+  struct _Vertex *p = ListGetCurrentItem(g->verticesList);
 
   return p->outDegree;
 }
@@ -299,12 +373,12 @@ unsigned int GraphGetVertexDegree(Graph* g, unsigned int v) {
 //
 // For a digraph
 //
-unsigned int GraphGetVertexOutDegree(Graph* g, unsigned int v) {
+unsigned int GraphGetVertexOutDegree(Graph *g, unsigned int v) {
   assert(g->isDigraph == 1);
   assert(v < g->numVertices);
 
   ListMove(g->verticesList, v);
-  struct _Vertex* p = ListGetCurrentItem(g->verticesList);
+  struct _Vertex *p = ListGetCurrentItem(g->verticesList);
 
   return p->outDegree;
 }
@@ -312,25 +386,25 @@ unsigned int GraphGetVertexOutDegree(Graph* g, unsigned int v) {
 //
 // For a digraph
 //
-unsigned int GraphGetVertexInDegree(Graph* g, unsigned int v) {
+unsigned int GraphGetVertexInDegree(Graph *g, unsigned int v) {
   assert(g->isDigraph == 1);
   assert(v < g->numVertices);
 
   ListMove(g->verticesList, v);
-  struct _Vertex* p = ListGetCurrentItem(g->verticesList);
+  struct _Vertex *p = ListGetCurrentItem(g->verticesList);
 
   return p->inDegree;
 }
 
 // Edges
 
-static int _addEdge(Graph* g, unsigned int v, unsigned int w, double weight) {
-  struct _Edge* edge = (struct _Edge*)malloc(sizeof(struct _Edge));
+static int _addEdge(Graph *g, unsigned int v, unsigned int w, double weight) {
+  struct _Edge *edge = (struct _Edge *)malloc(sizeof(struct _Edge));
   edge->adjVertex = w;
   edge->weight = weight;
 
   ListMove(g->verticesList, v);
-  struct _Vertex* vertex = ListGetCurrentItem(g->verticesList);
+  struct _Vertex *vertex = ListGetCurrentItem(g->verticesList);
   int result = ListInsert(vertex->edgesList, edge);
 
   if (result == -1) {
@@ -340,18 +414,18 @@ static int _addEdge(Graph* g, unsigned int v, unsigned int w, double weight) {
     vertex->outDegree++;
 
     ListMove(g->verticesList, w);
-    struct _Vertex* destVertex = ListGetCurrentItem(g->verticesList);
+    struct _Vertex *destVertex = ListGetCurrentItem(g->verticesList);
     destVertex->inDegree++;
   }
 
   if (g->isDigraph == 0) {
     // Bidirectional edge
-    struct _Edge* edge = (struct _Edge*)malloc(sizeof(struct _Edge));
+    struct _Edge *edge = (struct _Edge *)malloc(sizeof(struct _Edge));
     edge->adjVertex = v;
     edge->weight = weight;
 
     ListMove(g->verticesList, w);
-    struct _Vertex* vertex = ListGetCurrentItem(g->verticesList);
+    struct _Vertex *vertex = ListGetCurrentItem(g->verticesList);
     result = ListInsert(vertex->edgesList, edge);
 
     if (result == -1) {
@@ -366,7 +440,7 @@ static int _addEdge(Graph* g, unsigned int v, unsigned int w, double weight) {
   return 1;
 }
 
-int GraphAddEdge(Graph* g, unsigned int v, unsigned int w) {
+int GraphAddEdge(Graph *g, unsigned int v, unsigned int w) {
   assert(g->isWeighted == 0);
   assert(v != w);
   assert(v < g->numVertices);
@@ -375,7 +449,7 @@ int GraphAddEdge(Graph* g, unsigned int v, unsigned int w) {
   return _addEdge(g, v, w, 1.0);
 }
 
-int GraphAddWeightedEdge(Graph* g, unsigned int v, unsigned int w,
+int GraphAddWeightedEdge(Graph *g, unsigned int v, unsigned int w,
                          double weight) {
   assert(g->isWeighted == 1);
   assert(v != w);
@@ -385,7 +459,7 @@ int GraphAddWeightedEdge(Graph* g, unsigned int v, unsigned int w,
   return _addEdge(g, v, w, weight);
 }
 
-int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
+int GraphRemoveEdge(Graph *g, unsigned int v, unsigned int w) {
   assert(g != NULL);
 
   // TO BE COMPLETED !!
@@ -395,7 +469,7 @@ int GraphRemoveEdge(Graph* g, unsigned int v, unsigned int w) {
 
 // CHECKING
 
-int GraphCheckInvariants(const Graph* g) {
+int GraphCheckInvariants(const Graph *g) {
   assert(g != NULL);
   // TO BE COMPLETED !!
 
@@ -404,7 +478,7 @@ int GraphCheckInvariants(const Graph* g) {
 
 // DISPLAYING on the console
 
-void GraphDisplay(const Graph* g) {
+void GraphDisplay(const Graph *g) {
   printf("---\n");
   if (g->isWeighted) {
     printf("Weighted ");
@@ -421,20 +495,20 @@ void GraphDisplay(const Graph* g) {
   }
   printf("Vertices = %2d | Edges = %2d\n", g->numVertices, g->numEdges);
 
-  List* vertices = g->verticesList;
+  List *vertices = g->verticesList;
   ListMoveToHead(vertices);
   unsigned int i = 0;
   for (; i < g->numVertices; ListMoveToNext(vertices), i++) {
     printf("%2d ->", i);
-    struct _Vertex* v = ListGetCurrentItem(vertices);
+    struct _Vertex *v = ListGetCurrentItem(vertices);
     if (ListIsEmpty(v->edgesList)) {
       printf("\n");
     } else {
-      List* edges = v->edgesList;
+      List *edges = v->edgesList;
       unsigned int i = 0;
       ListMoveToHead(edges);
       for (; i < ListGetSize(edges); ListMoveToNext(edges), i++) {
-        struct _Edge* e = ListGetCurrentItem(edges);
+        struct _Edge *e = ListGetCurrentItem(edges);
         if (g->isWeighted) {
           printf("   %2d(%4.2f)", e->adjVertex, e->weight);
         } else {
@@ -447,10 +521,10 @@ void GraphDisplay(const Graph* g) {
   printf("---\n");
 }
 
-void GraphListAdjacents(const Graph* g, unsigned int v) {
+void GraphListAdjacents(const Graph *g, unsigned int v) {
   printf("---\n");
 
-  unsigned int* array = GraphGetAdjacentsTo(g, v);
+  unsigned int *array = GraphGetAdjacentsTo(g, v);
 
   printf("Vertex %d has %d adjacent vertices -> ", v, array[0]);
 
