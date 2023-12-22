@@ -15,12 +15,12 @@
 #include "instrumentation.h"
 
 struct _GraphTopoSort {
-  int* marked;                     // Aux array
-  unsigned int* numIncomingEdges;  // Aux array
-  unsigned int* vertexSequence;    // The result
-  int validResult;                 // 0 or 1
-  unsigned int numVertices;        // From the graph
-  Graph* graph;
+  int *marked;                    // Aux array
+  unsigned int *numIncomingEdges; // Aux array
+  unsigned int *vertexSequence;   // The result
+  int validResult;                // 0 or 1
+  unsigned int numVertices;       // From the graph
+  Graph *graph;
 };
 
 // AUXILIARY FUNCTION
@@ -32,37 +32,32 @@ static GraphTopoSort *_create(Graph *g) {
   assert(g != NULL);
 
   GraphTopoSort *p = malloc(sizeof(GraphTopoSort));
-  unsigned int num_vertices = GraphGetNumVertices(g);
   if (p == NULL) {
-    perror("Error creating the auxiliary struct!");
-    abort();
+    return NULL;
   }
 
   p->graph = g;
-  p->numVertices = num_vertices;
-  p->marked = calloc(num_vertices, sizeof(unsigned int));
+  p->numVertices = GraphGetNumVertices(g);
+  p->marked = calloc(p->numVertices, sizeof(unsigned int));
   if (p->marked == NULL) {
     perror("Error creating the auxiliary struct!");
     free(p);
-    p = NULL;
-    abort();
+    return NULL;
   }
-  p->vertexSequence = calloc(num_vertices, sizeof(unsigned int));
+
+  p->vertexSequence = calloc(p->numVertices, sizeof(unsigned int));
   if (p->vertexSequence == NULL) {
-    perror("Error creating the auxiliary struct!");
     free(p->marked);
     free(p);
-    p = NULL;
-    abort();
+    return NULL;
   }
-  p->numIncomingEdges = calloc(num_vertices, sizeof(unsigned int));
+
+  p->numIncomingEdges = calloc(p->numVertices, sizeof(unsigned int));
   if (p->numIncomingEdges == NULL) {
-    perror("Error creating the auxiliary struct!");
     free(p->vertexSequence);
     free(p->marked);
     free(p);
-    p = NULL;
-    abort();
+    return NULL;
   }
 
   return p;
@@ -77,12 +72,12 @@ static GraphTopoSort *_create(Graph *g) {
 // For instance, by checking if the number of elements in the vertexSequence is
 // the number of graph vertices
 //
-GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
+GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
 
-  GraphTopoSort* topoSort = _create(g);
+  GraphTopoSort *topoSort = _create(g);
 
   // Build the topological sorting
 
@@ -98,12 +93,12 @@ GraphTopoSort* GraphTopoSortComputeV1(Graph* g) {
 // For instance, by checking if the number of elements in the vertexSequence is
 // the number of graph vertices
 //
-GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
+GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
 
-  GraphTopoSort* topoSort = _create(g);
+  GraphTopoSort *topoSort = _create(g);
 
   // Build the topological sorting
 
@@ -119,12 +114,12 @@ GraphTopoSort* GraphTopoSortComputeV2(Graph* g) {
 // For instance, by checking if the number of elements in the vertexSequence is
 // the number of graph vertices
 //
-GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
+GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
 
-  GraphTopoSort* topoSort = _create(g);
+  GraphTopoSort *topoSort = _create(g);
 
   // Build the topological sorting
 
@@ -134,10 +129,10 @@ GraphTopoSort* GraphTopoSortComputeV3(Graph* g) {
   return topoSort;
 }
 
-void GraphTopoSortDestroy(GraphTopoSort** p) {
+void GraphTopoSortDestroy(GraphTopoSort **p) {
   assert(*p != NULL);
 
-  GraphTopoSort* aux = *p;
+  GraphTopoSort *aux = *p;
 
   free(aux->marked);
   free(aux->numIncomingEdges);
@@ -150,14 +145,14 @@ void GraphTopoSortDestroy(GraphTopoSort** p) {
 //
 // A valid sorting was computed?
 //
-int GraphTopoSortIsValid(const GraphTopoSort* p) { return p->validResult; }
+int GraphTopoSortIsValid(const GraphTopoSort *p) { return p->validResult; }
 
 //
 // Getting an array containing the topological sequence of vertex indices
 // Or NULL, if no sequence could be computed
 // MEMORY IS ALLOCATED FOR THE RESULTING ARRAY
 //
-unsigned int* GraphTopoSortGetSequence(const GraphTopoSort* p) {
+unsigned int *GraphTopoSortGetSequence(const GraphTopoSort *p) {
   assert(p != NULL);
   // TO BE COMPLETED
   // ...
@@ -169,7 +164,7 @@ unsigned int* GraphTopoSortGetSequence(const GraphTopoSort* p) {
 //
 // The toplogical sequence of vertex indices, if it could be computed
 //
-void GraphTopoSortDisplaySequence(const GraphTopoSort* p) {
+void GraphTopoSortDisplaySequence(const GraphTopoSort *p) {
   assert(p != NULL);
 
   if (p->validResult == 0) {
@@ -189,7 +184,7 @@ void GraphTopoSortDisplaySequence(const GraphTopoSort* p) {
 // Followed by the digraph displayed using the adjecency lists
 // Adjacency lists are presented in topologic sorted order
 //
-void GraphTopoSortDisplay(const GraphTopoSort* p) {
+void GraphTopoSortDisplay(const GraphTopoSort *p) {
   assert(p != NULL);
 
   // The topological order
