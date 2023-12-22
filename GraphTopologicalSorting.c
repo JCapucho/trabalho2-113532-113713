@@ -165,6 +165,8 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
   // Create and initialize the struct
 
   GraphTopoSort *topoSort = _create(g);
+  if (topoSort == NULL)
+    return NULL;
 
   // Lets also create and initialize the auxiliary array num_edges_per_vertex
   unsigned int num_vertices = topoSort->numVertices;
@@ -183,6 +185,8 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
     topoSort->marked[new_vertex] = 1;
     unsigned int *adjacents = GraphGetAdjacentsTo(g, new_vertex);
     int out_degree = adjacents[0];
+    if (out_degree == 0)
+      continue;
     for (int i = 1; i < out_degree + 1; i++) {
       unsigned int adjacent = adjacents[i];
       num_edges_per_vertex[adjacent]--;
