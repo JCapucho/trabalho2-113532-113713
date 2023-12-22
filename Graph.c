@@ -462,7 +462,73 @@ int GraphAddWeightedEdge(Graph *g, unsigned int v, unsigned int w,
 int GraphRemoveEdge(Graph *g, unsigned int v, unsigned int w) {
   assert(g != NULL);
 
-  // TO BE COMPLETED !!
+  // Check that the vertices are valid IDs.
+  if (v >= g->numVertices || w >= g->numVertices)
+    return -1;
+
+  // Fetch the vertex `v`
+  ListMove(g->verticesList, v);
+  struct _Vertex *vertex = ListGetCurrentItem(g->verticesList);
+
+  // Track if the edge was found and what it's weight was
+  int found = 0;
+  double edgeWeight;
+
+  // Searches trough all edges of the vertex
+  ListMoveToHead(vertex->edgesList);
+  for (unsigned int i = 0; i < ListGetSize(vertex->edgesList);
+       ListMoveToNext(vertex->edgesList), i++) {
+    struct _Edge *edge = ListGetCurrentItem(vertex->edgesList);
+
+    // The edge that connects to `w` was found
+    if (edge->adjVertex == w) {
+      found = 1;
+      edgeWeight = edge->weight;
+      // Remove the edge from the list and free it
+      ListRemoveCurrent(vertex->edgesList);
+      free(edge);
+      break;
+    }
+  }
+
+  if (!found)
+    return -1;
+
+  // Decrement the out degree and the number of edges to reflect
+  // the removal of the edge.
+  vertex->outDegree--;
+  g->numEdges--;
+
+  // Fetch the vertex `w`
+  ListMove(g->verticesList, w);
+  struct _Vertex *other_vertex = ListGetCurrentItem(g->verticesList);
+
+  if (!g->isDigraph) {
+    // Searches trough all edges of the vertex
+    ListMoveToHead(other_vertex->edgesList);
+    for (unsigned int i = 0; i < ListGetSize(other_vertex->edgesList);
+         ListMoveToNext(other_vertex->edgesList), i++) {
+      struct _Edge *edge = ListGetCurrentItem(other_vertex->edgesList);
+
+      // The opposing edge was found, remove it
+      // NOTE: we need to check that the weight is equal for weighted graphs,
+      //       because there can be many edges with different weights.
+      if (edge->adjVertex == v &&
+          (!g->isWeighted || edge->weight == edgeWeight)) {
+        // Remove the edge from the list and free it
+        ListRemoveCurrent(other_vertex->edgesList);
+        free(edge);
+        break;
+      }
+    }
+
+    // Decrement the out degree to reflect the removal of the opposing edge.
+    other_vertex->outDegree--;
+  } else {
+    // The graph is a digraph so the in degree of the inbound vertex
+    // needs to be decremented.
+    other_vertex->inDegree--;
+  }
 
   return 0;
 }
@@ -471,9 +537,58 @@ int GraphRemoveEdge(Graph *g, unsigned int v, unsigned int w) {
 
 int GraphCheckInvariants(const Graph *g) {
   assert(g != NULL);
-  // TO BE COMPLETED !!
 
-  return 0;
+  if (g->numVertices != ListGetSize(g->verticesList))
+    return 0;
+
+  unsigned int countedEdges = 0;
+  ListMoveToHead(g->verticesList);
+  for (unsigned int i = 0; i < ListGetSize(g->verticesList);
+       ListMoveToNext(g->verticesList), i++) {
+    const struct _Vertex *v = ListGetCurrentItem(g->verticesList);
+    const unsigned int numEdgesVertex = ListGetSize(v->edgesList);
+
+    if (v->outDegree != numEdgesVertex)
+      return 0;
+
+    if (g->isComplete && (v->outDegree != g->numVertices - 1 ||
+                          (g->isDigraph && v->inDegree != g->numVertices - 1)))
+      return 0;
+
+    // TODO: Check that bigraphs mirror the edges
+    // if (!g->isDigraph) {
+    //   ListMoveToHead(v->edgesList);
+    //   for (unsigned int i = 0; i < ListGetSize(v->edgesList);
+    //        ListMoveToNext(v->edgesList), i++) {
+    //     const struct _Edge *edge = ListGetCurrentItem(v->edgesList);
+    //
+    //     ListMove(g->verticesList, edge->adjVertex);
+    //     const struct _Vertex *other_v = ListGetCurrentItem(g->verticesList);
+    //
+    //     ListMoveToHead(v->edgesList);
+    //     for (unsigned int i = 0; i < ListGetSize(v->edgesList);
+    //          ListMoveToNext(v->edgesList), i++) {
+    //       const struct _Edge *edge = ListGetCurrentItem(v->edgesList);
+    //
+    //       ListMove(g->verticesList, edge->adjVertex);
+    //       const struct _Vertex *other_v =
+    //       ListGetCurrentItem(g->verticesList);
+    //     }
+    //   }
+    //
+    //   ListMove(g->verticesList, v->id);
+    // }
+
+    // TODO: Check that digraph inDegree matches other edges
+
+    countedEdges += numEdgesVertex;
+  }
+
+  if ((g->isDigraph && countedEdges != g->numEdges) ||
+      (!g->isDigraph && countedEdges / 2 != g->numEdges))
+    return 0;
+
+  return 1;
 }
 
 // DISPLAYING on the console

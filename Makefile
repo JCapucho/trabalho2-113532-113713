@@ -7,9 +7,11 @@ CC = gcc
 CFLAGS += -g -Wall -Wextra
 CPPFLAGS += -MMD
 
-TARGETS = example1 example2 example3
+TARGETS = example1 example2 example3 RandomTester
 
 all: $(TARGETS)
+
+RandomTester: RandomTester.o Graph.o SortedList.o
 
 example1: example1.o Graph.o SortedList.o
 
