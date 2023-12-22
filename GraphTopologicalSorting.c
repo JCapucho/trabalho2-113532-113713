@@ -74,45 +74,68 @@ static GraphTopoSort *_create(Graph *g) {
 // For instance, by checking if the number of elements in the vertexSequence is
 // the number of graph vertices
 //
-int _new_vertex_available_v1(GraphTopoSort *topoSort, Graph *g,
-                             unsigned int *vertex) {
-  int num_vertices = topoSort->numVertices;
-  for (int i = 0; i < num_vertices; i++) {
-    if (GraphGetVertexInDegree(g, i) == 0 && topoSort->marked[i] == 0) {
-      *vertex = i;
-      return 1;
-    }
-  }
-  return 0;
-}
-
 GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
-
   GraphTopoSort *topoSort = _create(g);
-  //
-  // Lets also start by creating the copy of G, G'
-  Graph *g_prime = GraphCopy(g);
+  if (topoSort == NULL)
+    return NULL;
+
+  // Copy the graph
+  Graph *copy_g = GraphCopy(g);
+  if (copy_g == NULL) {
+    GraphTopoSortDestroy(&topoSort);
+    return NULL;
+  }
 
   // Build the topological sorting
-  // We can now iterate all the vertices of G'. We need to find a vertex whose
-  // InDegree is 0. Then we will remove that vertex from the graph, along with
-  // his outgoing edges. We also need to mark it, to make sure we dont select
-  // him again.
-
-  unsigned int new_vertex;
-  unsigned int counter = 0;
-  while (_new_vertex_available_v1(topoSort, g_prime, &new_vertex)) {
-    topoSort->marked[new_vertex] = 1;
-    topoSort->vertexSequence[counter++] = new_vertex;
-    unsigned int *adjacents = GraphGetAdjacentsTo(g_prime, new_vertex);
-    for (unsigned int i = 1; i <= adjacents[0]; i++) {
-      GraphRemoveEdge(g_prime, new_vertex, adjacents[i]);
+  unsigned int v = 0, resultEnd = 0;
+  while (v < topoSort->numVertices) {
+    // If the vertex was already added to the sequence skip it
+    if (topoSort->marked[v]) {
+      v++;
+      continue;
     }
+
+    // Check if the vertex has no inbound edges, if so it will be added
+    // to the sequence.
+    if (GraphGetVertexInDegree(copy_g, v) == 0) {
+      // Get the list of vertices that are adjacent so that the edges can
+      // be removed.
+      unsigned int *adjacents = GraphGetAdjacentsTo(copy_g, v);
+      if (adjacents == NULL) {
+        GraphDestroy(&copy_g);
+        GraphTopoSortDestroy(&topoSort);
+        return NULL;
+      }
+
+      // Remove all outbound edges
+      for (unsigned int j = 1; j <= adjacents[0]; j++) {
+        unsigned int w = adjacents[j];
+        assert(GraphRemoveEdge(copy_g, v, w) != -1);
+      }
+
+      // Free the adjacency list
+      free(adjacents);
+
+      // Emit the vertex
+      topoSort->vertexSequence[resultEnd] = v;
+      resultEnd++;
+      // Mark the vertex as already been emitted
+      topoSort->marked[v] = 1;
+
+      // Restart the sorting
+      v = 0;
+    }
+
+    v++;
   }
-  topoSort->validResult = (counter == topoSort->numVertices);
+
+  // Check that all vertices were emitted, otherwise the sorting didn't finish
+  topoSort->validResult = resultEnd == topoSort->numVertices;
+
+  GraphDestroy(&copy_g);
 
   return topoSort;
 }
