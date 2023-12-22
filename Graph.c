@@ -37,6 +37,8 @@ struct _GraphHeader {
   List *verticesList;
 };
 
+static int _addEdge(Graph *g, unsigned int v, unsigned int w, double weight);
+
 // The comparator for the VERTICES LIST
 
 int graphVerticesComparator(const void *p1, const void *p2) {
@@ -238,9 +240,49 @@ Graph *GraphCopy(const Graph *g) {
 Graph *GraphFromFile(FILE *f) {
   assert(f != NULL);
 
-  // TO BE COMPLETED !!
+  unsigned int isDigraph, isWeighted, numVertices, numEdges;
 
-  return NULL;
+  // Read the graph header
+  if (fscanf(f, "%u %u %u %u", &isDigraph, &isWeighted, &numVertices,
+             &numEdges) != 4)
+    return NULL;
+
+  // Check that the values are in the valid range
+  if (isDigraph > 1 || isWeighted > 1)
+    return NULL;
+
+  // Create the graph
+  Graph *graph = GraphCreate(numVertices, isDigraph, isWeighted);
+  if (graph == NULL)
+    return NULL;
+
+  // Read all lines until EOF
+  for (unsigned int i = 0; i < numEdges; i++) {
+    double weight = 1.0;
+    unsigned int start, end;
+    int res, expectedRead = 2;
+
+    // Read 3 values if the graph is weighted, otherwise read 2
+    if (isWeighted) {
+      expectedRead = 3;
+      res = fscanf(f, "%u %u %lf", &start, &end, &weight);
+    } else {
+      res = fscanf(f, "%u %u", &start, &end);
+    }
+
+    // Check that all expected values were properly read
+    if (res != expectedRead) {
+      GraphDestroy(&graph);
+      return NULL;
+    }
+
+    // Don't add loops
+    if (start != end)
+      // Add the new edge
+      _addEdge(graph, start, end, weight);
+  }
+
+  return graph;
 }
 
 // Graph
