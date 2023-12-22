@@ -95,6 +95,19 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
 // For instance, by checking if the number of elements in the vertexSequence is
 // the number of graph vertices
 //
+
+int _new_vertex_available(GraphTopoSort *topoSort, unsigned int *num_edges,
+                          unsigned int *vertex) {
+  int num_vertices = topoSort->numVertices;
+  for (int i = 0; i < num_vertices; i++) {
+    if (num_edges[i] == 0 && topoSort->marked[i] == 0) {
+      *vertex = i;
+      return 1;
+    }
+  }
+  return 0;
+}
+
 GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
@@ -102,11 +115,32 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
 
   GraphTopoSort *topoSort = _create(g);
 
+  // Lets also create and initialize the auxiliary array num_edges_per_vertex
+  unsigned int num_vertices = topoSort->numVertices;
+
+  unsigned int *num_edges_per_vertex =
+      malloc(num_vertices * sizeof(unsigned int));
+
+  for (unsigned int i = 0; i < num_vertices; i++) {
+    num_edges_per_vertex[i] = GraphGetVertexInDegree(g, i);
+  }
   // Build the topological sorting
+  unsigned int new_vertex;
+  unsigned int counter = 0;
+  while (_new_vertex_available(topoSort, num_edges_per_vertex, &new_vertex)) {
+    topoSort->vertexSequence[counter++] = new_vertex;
+    topoSort->marked[new_vertex] = 1;
+    unsigned int *adjacents = GraphGetAdjacentsTo(g, new_vertex);
+    int out_degree = adjacents[0];
+    for (int i = 1; i < out_degree + 1; i++) {
+      unsigned int adjacent = adjacents[i];
+      num_edges_per_vertex[adjacent]--;
+    }
+  }
 
-  // TO BE COMPLETED
-  //...
-
+  // If we traversed all the vertices on the graph, then we have sucessfully
+  // made a topological ordered graph.
+  topoSort->validResult = (counter == num_vertices);
   return topoSort;
 }
 
