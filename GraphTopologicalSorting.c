@@ -74,17 +74,45 @@ static GraphTopoSort *_create(Graph *g) {
 // For instance, by checking if the number of elements in the vertexSequence is
 // the number of graph vertices
 //
+int _new_vertex_available_v1(GraphTopoSort *topoSort, Graph *g,
+                             unsigned int *vertex) {
+  int num_vertices = topoSort->numVertices;
+  for (int i = 0; i < num_vertices; i++) {
+    if (GraphGetVertexInDegree(g, i) == 0 && topoSort->marked[i] == 0) {
+      *vertex = i;
+      return 1;
+    }
+  }
+  return 0;
+}
+
 GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
 
   GraphTopoSort *topoSort = _create(g);
+  //
+  // Lets also start by creating the copy of G, G'
+  Graph *g_prime = GraphCopy(g);
 
   // Build the topological sorting
+  // We can now iterate all the vertices of G'. We need to find a vertex whose
+  // InDegree is 0. Then we will remove that vertex from the graph, along with
+  // his outgoing edges. We also need to mark it, to make sure we dont select
+  // him again.
 
-  // TO BE COMPLETED
-  //...
+  unsigned int new_vertex;
+  unsigned int counter = 0;
+  while (_new_vertex_available_v1(topoSort, g_prime, &new_vertex)) {
+    topoSort->marked[new_vertex] = 1;
+    topoSort->vertexSequence[counter++] = new_vertex;
+    unsigned int *adjacents = GraphGetAdjacentsTo(g_prime, new_vertex);
+    for (unsigned int i = 1; i <= adjacents[0]; i++) {
+      GraphRemoveEdge(g_prime, new_vertex, adjacents[i]);
+    }
+  }
+  topoSort->validResult = (counter == topoSort->numVertices);
 
   return topoSort;
 }
