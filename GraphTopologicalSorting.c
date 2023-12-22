@@ -127,9 +127,9 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
 
       // Restart the sorting
       v = 0;
+    } else {
+      v++;
     }
-
-    v++;
   }
 
   // Check that all vertices were emitted, otherwise the sorting didn't finish
