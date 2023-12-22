@@ -28,13 +28,45 @@ struct _GraphTopoSort {
 // And for its array fields
 // Initialize all struct fields
 //
-static GraphTopoSort* _create(Graph* g) {
+static GraphTopoSort *_create(Graph *g) {
   assert(g != NULL);
 
-  GraphTopoSort* p = NULL;
+  GraphTopoSort *p = malloc(sizeof(GraphTopoSort));
+  unsigned int num_vertices = GraphGetNumVertices(g);
+  if (p == NULL) {
+    perror("Error creating the auxiliary struct!");
+    abort();
+  }
 
-  // TO BE COMPLETED
-  // ...
+  p->graph = g;
+  p->numVertices = num_vertices;
+  p->marked = calloc(num_vertices, sizeof(unsigned int));
+  if (p->marked == NULL) {
+    perror("Error creating the auxiliary struct!");
+    free(p);
+    p = NULL;
+    abort();
+  }
+  for (int i = 0; i < num_vertices; i++) {
+    p->marked[i] = -1;
+  }
+  p->vertexSequence = calloc(num_vertices, sizeof(unsigned int));
+  if (p->vertexSequence == NULL) {
+    perror("Error creating the auxiliary struct!");
+    free(p->marked);
+    free(p);
+    p = NULL;
+    abort();
+  }
+  p->numIncomingEdges = calloc(num_vertices, sizeof(unsigned int));
+  if (p->numIncomingEdges == NULL) {
+    perror("Error creating the auxiliary struct!");
+    free(p->vertexSequence);
+    free(p->marked);
+    free(p);
+    p = NULL;
+    abort();
+  }
 
   return p;
 }
