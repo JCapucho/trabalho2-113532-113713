@@ -120,8 +120,7 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
       free(adjacents);
 
       // Emit the vertex
-      topoSort->vertexSequence[resultEnd] = v;
-      resultEnd++;
+      topoSort->vertexSequence[resultEnd++] = v;
       // Mark the vertex as already been emitted
       topoSort->marked[v] = 1;
 
@@ -147,15 +146,14 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
 // the number of graph vertices
 //
 
-int _new_vertex_available(GraphTopoSort *topoSort, unsigned int *num_edges,
-                          unsigned int *vertex) {
-  int num_vertices = topoSort->numVertices;
-  for (int i = 0; i < num_vertices; i++) {
-    if (num_edges[i] == 0 && topoSort->marked[i] == 0) {
+int _new_vertex_available(GraphTopoSort *topoSort, unsigned int *vertex) {
+  for (unsigned int i = 0; i < topoSort->numVertices; i++) {
+    if (topoSort->numIncomingEdges[i] == 0 && topoSort->marked[i] == 0) {
       *vertex = i;
       return 1;
     }
   }
+
   return 0;
 }
 
@@ -163,39 +161,39 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
   assert(g != NULL && GraphIsDigraph(g) == 1);
 
   // Create and initialize the struct
-
   GraphTopoSort *topoSort = _create(g);
   if (topoSort == NULL)
     return NULL;
 
-  // Lets also create and initialize the auxiliary array num_edges_per_vertex
-  unsigned int num_vertices = topoSort->numVertices;
+  for (unsigned int i = 0; i < topoSort->numVertices; i++)
+    topoSort->numIncomingEdges[i] = GraphGetVertexInDegree(g, i);
 
-  unsigned int *num_edges_per_vertex =
-      malloc(num_vertices * sizeof(unsigned int));
-
-  for (unsigned int i = 0; i < num_vertices; i++) {
-    num_edges_per_vertex[i] = GraphGetVertexInDegree(g, i);
-  }
   // Build the topological sorting
-  unsigned int new_vertex;
-  unsigned int counter = 0;
-  while (_new_vertex_available(topoSort, num_edges_per_vertex, &new_vertex)) {
-    topoSort->vertexSequence[counter++] = new_vertex;
+  unsigned int new_vertex, resultEnd = 0;
+
+  while (_new_vertex_available(topoSort, &new_vertex)) {
+    topoSort->vertexSequence[resultEnd++] = new_vertex;
     topoSort->marked[new_vertex] = 1;
+
     unsigned int *adjacents = GraphGetAdjacentsTo(g, new_vertex);
-    int out_degree = adjacents[0];
-    if (out_degree == 0)
-      continue;
-    for (int i = 1; i < out_degree + 1; i++) {
-      unsigned int adjacent = adjacents[i];
-      num_edges_per_vertex[adjacent]--;
+    if (adjacents == NULL) {
+      GraphTopoSortDestroy(&topoSort);
+      return NULL;
     }
+
+    for (unsigned int i = 1; i <= adjacents[0]; i++) {
+      unsigned int adjacent = adjacents[i];
+      topoSort->numIncomingEdges[adjacent]--;
+    }
+
+    // Free the adjacency list
+    free(adjacents);
   }
 
   // If we traversed all the vertices on the graph, then we have sucessfully
   // made a topological ordered graph.
-  topoSort->validResult = (counter == num_vertices);
+  topoSort->validResult = resultEnd == topoSort->numVertices;
+
   return topoSort;
 }
 
@@ -254,8 +252,7 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
     }
 
     // Emit the vertex
-    topoSort->vertexSequence[resultEnd] = v;
-    resultEnd++;
+    topoSort->vertexSequence[resultEnd++] = v;
 
     // Free the adjacency list
     free(adjacents);
