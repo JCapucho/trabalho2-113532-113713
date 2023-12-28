@@ -7,7 +7,7 @@ CC = gcc
 CFLAGS += -g -Wall -Wextra
 CPPFLAGS += -MMD
 
-TARGETS = example1 example2 example3 RandomTester LoaderTester
+TARGETS = example1 example2 example3 RandomTester LoaderTester DotExporter
 
 all: $(TARGETS)
 

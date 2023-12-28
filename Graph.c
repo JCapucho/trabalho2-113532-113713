@@ -283,6 +283,13 @@ Graph *GraphFromFile(FILE *f) {
       _addEdge(graph, start, end, weight);
   }
 
+  unsigned int completeEdges = numVertices * (numVertices - 1);
+
+  if (!isDigraph)
+    completeEdges /= 2;
+
+  graph->isComplete = graph->numEdges == completeEdges;
+
   return graph;
 }
 
@@ -541,6 +548,11 @@ int GraphRemoveEdge(Graph *g, unsigned int v, unsigned int w) {
   // the removal of the edge.
   vertex->outDegree--;
   g->numEdges--;
+
+  // Since the implementation of the graph doesn't allow loops nor
+  // parallel edges, removing a edge will always yield a non complete
+  // graph.
+  g->isComplete = 0;
 
   // Fetch the vertex `w`
   ListMove(g->verticesList, w);
