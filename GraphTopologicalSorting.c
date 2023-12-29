@@ -94,42 +94,36 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
   unsigned int v = 0, resultEnd = 0;
   while (v < topoSort->numVertices) {
     // If the vertex was already added to the sequence skip it
-    if (topoSort->marked[v]) {
+    // Check if the vertex has no inbound edges, if so it will be added
+    // to the sequence.
+    if (topoSort->marked[v] || GraphGetVertexInDegree(copy_g, v) != 0) {
       v++;
       continue;
     }
 
-    // Check if the vertex has no inbound edges, if so it will be added
-    // to the sequence.
-    if (GraphGetVertexInDegree(copy_g, v) == 0) {
-      // Get the list of vertices that are adjacent so that the edges can
-      // be removed.
-      unsigned int *adjacents = GraphGetAdjacentsTo(copy_g, v);
-      if (adjacents == NULL) {
-        GraphDestroy(&copy_g);
-        GraphTopoSortDestroy(&topoSort);
-        return NULL;
-      }
-
-      // Remove all outbound edges
-      for (unsigned int j = 1; j <= adjacents[0]; j++) {
-        unsigned int w = adjacents[j];
-        assert(GraphRemoveEdge(copy_g, v, w) != -1);
-      }
-
-      // Free the adjacency list
-      free(adjacents);
-
-      // Emit the vertex
-      topoSort->vertexSequence[resultEnd++] = v;
-      // Mark the vertex as already been emitted
-      topoSort->marked[v] = 1;
-
-      // Restart the sorting
-      v = 0;
-    } else {
-      v++;
+    unsigned int *adjacents = GraphGetAdjacentsTo(copy_g, v);
+    if (adjacents == NULL) {
+      GraphDestroy(&copy_g);
+      GraphTopoSortDestroy(&topoSort);
+      return NULL;
     }
+
+    // Remove all outbound edges
+    for (unsigned int j = 1; j <= adjacents[0]; j++) {
+      unsigned int w = adjacents[j];
+      assert(GraphRemoveEdge(copy_g, v, w) != -1);
+    }
+
+    // Free the adjacency list
+    free(adjacents);
+
+    // Emit the vertex
+    topoSort->vertexSequence[resultEnd++] = v;
+    // Mark the vertex as already been emitted
+    topoSort->marked[v] = 1;
+
+    // Restart the sorting
+    v = 0;
   }
 
   // Check that all vertices were emitted, otherwise the sorting didn't finish
