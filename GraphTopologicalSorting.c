@@ -300,8 +300,11 @@ unsigned int *GraphTopoSortGetSequence(const GraphTopoSort *p) {
     return NULL;
 
   unsigned int *seq = malloc(sizeof(unsigned int) * p->numVertices);
+  if (seq == NULL)
+    return NULL;
+
   memcpy(seq, p->vertexSequence, sizeof(unsigned int) * p->numVertices);
-  return NULL;
+  return seq;
 }
 
 // DISPLAYING on the console
