@@ -458,6 +458,7 @@ static int _addEdge(Graph *g, unsigned int v, unsigned int w, double weight) {
   int result = ListInsert(vertex->edgesList, edge);
 
   if (result == -1) {
+    free(edge);
     return 0;
   } else {
     g->numEdges++;
