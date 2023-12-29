@@ -294,8 +294,12 @@ int GraphTopoSortIsValid(const GraphTopoSort *p) { return p->validResult; }
 //
 unsigned int *GraphTopoSortGetSequence(const GraphTopoSort *p) {
   assert(p != NULL);
-  // TO BE COMPLETED
-  // ...
+
+  if (!p->validResult)
+    return NULL;
+
+  unsigned int *seq = malloc(sizeof(unsigned int) * p->numVertices);
+  memcpy(seq, p->vertexSequence, sizeof(unsigned int) * p->numVertices);
   return NULL;
 }
 
