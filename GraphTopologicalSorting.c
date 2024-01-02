@@ -73,6 +73,7 @@ static GraphTopoSort *_create(Graph *g) {
   InstrName[0] = "Verts";
   InstrName[1] = "Edges";
   InstrName[2] = "Cmps";
+  InstrName[3] = "Allocs";
 
   return p;
 }
