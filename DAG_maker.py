@@ -7,8 +7,6 @@ def main():
         edges = set();
         number_vertices = rand.randint(10,int(sys.argv[2]))
         vertex_array = rand.sample(list(range(number_vertices)), number_vertices)
-        with open(f"GRAPHS/DAG_{number_vertices}_{file}_ordering.txt", "a") as solution:
-            print(vertex_array, file=solution)
         for vertex_idx in range(number_vertices):
             out_degree = rand.randint(0, number_vertices - vertex_idx - 1)
             for i in range(out_degree):
