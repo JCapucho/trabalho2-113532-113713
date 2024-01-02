@@ -16,6 +16,7 @@
 
 #include "SortedList.h"
 #include "instrumentation.h"
+#define ALLOCATIONS InstrCount[3]
 
 struct _Vertex {
   unsigned int id;
@@ -166,6 +167,7 @@ Graph *GraphCopy(const Graph *g) {
 
   // Allocate the copy graph header
   Graph *new_g = (Graph *)malloc(sizeof(struct _GraphHeader));
+  ALLOCATIONS++;
   if (new_g == NULL)
     return NULL;
 
@@ -174,6 +176,7 @@ Graph *GraphCopy(const Graph *g) {
 
   // Create a new vertice list
   new_g->verticesList = ListCreate(graphVerticesComparator);
+  ALLOCATIONS++;
   if (new_g->verticesList == NULL) {
     free(new_g);
     return NULL;
@@ -190,6 +193,7 @@ Graph *GraphCopy(const Graph *g) {
 
     // Allocate the copy vertex
     struct _Vertex *v = (struct _Vertex *)malloc(sizeof(struct _Vertex));
+    ALLOCATIONS++;
     if (v == NULL) {
       GraphDestroy(&new_g);
       return NULL;
@@ -200,6 +204,7 @@ Graph *GraphCopy(const Graph *g) {
 
     // Create a new edge list
     v->edgesList = ListCreate(graphEdgesComparator);
+    ALLOCATIONS++;
     if (v->edgesList == NULL) {
       free(v);
       GraphDestroy(&new_g);
@@ -208,6 +213,7 @@ Graph *GraphCopy(const Graph *g) {
 
     // Add the copied vertex to the new vertice list
     ListInsert(new_g->verticesList, v);
+    ALLOCATIONS++;
     new_g->numVertices++;
 
     // Copy all the edges
@@ -219,6 +225,7 @@ Graph *GraphCopy(const Graph *g) {
 
       // Allocate the copy edge
       struct _Edge *edge = (struct _Edge *)malloc(sizeof(struct _Edge));
+      ALLOCATIONS++;
       if (edge == NULL) {
         GraphDestroy(&new_g);
         return NULL;
@@ -229,6 +236,7 @@ Graph *GraphCopy(const Graph *g) {
 
       // Add the copied edege to the new edges list
       ListInsert(v->edgesList, edge);
+      ALLOCATIONS++;
     }
 
     // Move to the next vertex

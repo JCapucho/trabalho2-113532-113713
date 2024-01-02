@@ -15,8 +15,12 @@
 #include "IntegersQueue.h"
 #include "instrumentation.h"
 
-#define VISITED_VERTS InstrCount[0]
-#define EDGES_REMOVED InstrCount[1]
+#define VISITED_VERTS InstrCount[0] // Number of vertices visited
+#define EDGES_REMOVED InstrCount[1] // Number of edges removed from a graph
+#define COMPARISONS                                                            \
+  InstrCount[2] // Comparisons envolving the number of edges of a vertex
+#define ALLOCATIONS                                                            \
+  InstrCount[3] // Number of memory allocations needed for the entire algorithm
 
 struct _GraphTopoSort {
   int *marked;                    // Aux array
@@ -68,6 +72,7 @@ static GraphTopoSort *_create(Graph *g) {
 
   InstrName[0] = "Verts";
   InstrName[1] = "Edges";
+  InstrName[2] = "Cmps";
 
   return p;
 }
@@ -86,11 +91,13 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
 
   // Create and initialize the struct
   GraphTopoSort *topoSort = _create(g);
+  ALLOCATIONS++;
   if (topoSort == NULL)
     return NULL;
 
   // Copy the graph
   Graph *copy_g = GraphCopy(g);
+  // The GraphCopy function already incrementes the ALLOCATIONS counter;
   if (copy_g == NULL) {
     GraphTopoSortDestroy(&topoSort);
     return NULL;
@@ -103,12 +110,14 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
     // If the vertex was already added to the sequence skip it
     // Check if the vertex has no inbound edges, if so it will be added
     // to the sequence.
+    COMPARISONS++;
     if (topoSort->marked[v] || GraphGetVertexInDegree(copy_g, v) != 0) {
       v++;
       continue;
     }
 
     unsigned int *adjacents = GraphGetAdjacentsTo(copy_g, v);
+    ALLOCATIONS++;
     if (adjacents == NULL) {
       GraphDestroy(&copy_g);
       GraphTopoSortDestroy(&topoSort);
@@ -152,6 +161,7 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
 int _new_vertex_available(GraphTopoSort *topoSort, unsigned int *vertex) {
   for (unsigned int i = 0; i < topoSort->numVertices; i++) {
     VISITED_VERTS++;
+    COMPARISONS++;
     if (topoSort->numIncomingEdges[i] == 0 && topoSort->marked[i] == 0) {
       *vertex = i;
       return 1;
@@ -166,6 +176,7 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
 
   // Create and initialize the struct
   GraphTopoSort *topoSort = _create(g);
+  ALLOCATIONS++;
   if (topoSort == NULL)
     return NULL;
 
@@ -182,6 +193,7 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
     topoSort->marked[new_vertex] = 1;
 
     unsigned int *adjacents = GraphGetAdjacentsTo(g, new_vertex);
+    ALLOCATIONS++;
 
     if (adjacents == NULL) {
       GraphTopoSortDestroy(&topoSort);
@@ -189,6 +201,7 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
     }
 
     int out_degree = adjacents[0];
+    COMPARISONS++;
     if (out_degree == 0)
       continue;
 
@@ -219,12 +232,16 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
 
   // Create and initialize the struct
   GraphTopoSort *topoSort = _create(g);
+  ALLOCATIONS++;
   if (topoSort == NULL)
     return NULL;
 
   // Allocate the queue with the number of vertices since that's the largest
   // possible size.
   Queue *queue = QueueCreate(topoSort->numVertices);
+  ALLOCATIONS += 2;
+  // QueueCreate does 2 allocations, one for the header and one for the data
+  // array;
   if (queue == NULL) {
     GraphTopoSortDestroy(&topoSort);
     return NULL;
@@ -236,6 +253,7 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
     unsigned int inDegree = GraphGetVertexInDegree(g, v);
     topoSort->numIncomingEdges[v] = inDegree;
 
+    COMPARISONS++;
     if (inDegree == 0)
       QueueEnqueue(queue, v);
   }
@@ -260,6 +278,7 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
       topoSort->numIncomingEdges[w]--;
       // Add the adjcent vertex to the queue if it no longer has any incident
       // edges
+      COMPARISONS++;
       if (topoSort->numIncomingEdges[w] == 0)
         QueueEnqueue(queue, w);
     }
