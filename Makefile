@@ -17,10 +17,10 @@ LoaderTester: LoaderTester.o Graph.o SortedList.o
 
 DotExporter: DotExporter.o Graph.o SortedList.o
 
-example1: example1.o Graph.o SortedList.o
+example1: example1.o Graph.o SortedList.o instrumentation.o
 
 example2: example2.o Graph.o GraphTopologicalSorting.o \
- IntegersQueue.o SortedList.o
+ IntegersQueue.o SortedList.o instrumentation.o
 
 example3: example3.o Graph.o GraphTopologicalSorting.o \
  IntegersQueue.o SortedList.o instrumentation.o
