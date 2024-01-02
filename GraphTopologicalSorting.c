@@ -15,6 +15,9 @@
 #include "IntegersQueue.h"
 #include "instrumentation.h"
 
+#define VISITED_VERTS InstrCount[0]
+#define EDGES_REMOVED InstrCount[1]
+
 struct _GraphTopoSort {
   int *marked;                    // Aux array
   unsigned int *numIncomingEdges; // Aux array
@@ -63,6 +66,9 @@ static GraphTopoSort *_create(Graph *g) {
     return NULL;
   }
 
+  InstrName[0] = "Verts";
+  InstrName[1] = "Edges";
+
   return p;
 }
 
@@ -93,6 +99,7 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
   // Build the topological sorting
   unsigned int v = 0, resultEnd = 0;
   while (v < topoSort->numVertices) {
+    VISITED_VERTS++;
     // If the vertex was already added to the sequence skip it
     // Check if the vertex has no inbound edges, if so it will be added
     // to the sequence.
@@ -111,6 +118,7 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
     // Remove all outbound edges
     for (unsigned int j = 1; j <= adjacents[0]; j++) {
       unsigned int w = adjacents[j];
+      EDGES_REMOVED++;
       assert(GraphRemoveEdge(copy_g, v, w) != -1);
     }
 
@@ -143,6 +151,7 @@ GraphTopoSort *GraphTopoSortComputeV1(Graph *g) {
 
 int _new_vertex_available(GraphTopoSort *topoSort, unsigned int *vertex) {
   for (unsigned int i = 0; i < topoSort->numVertices; i++) {
+    VISITED_VERTS++;
     if (topoSort->numIncomingEdges[i] == 0 && topoSort->marked[i] == 0) {
       *vertex = i;
       return 1;
@@ -160,8 +169,10 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
   if (topoSort == NULL)
     return NULL;
 
-  for (unsigned int i = 0; i < topoSort->numVertices; i++)
+  for (unsigned int i = 0; i < topoSort->numVertices; i++) {
+    VISITED_VERTS++;
     topoSort->numIncomingEdges[i] = GraphGetVertexInDegree(g, i);
+  }
 
   // Build the topological sorting
   unsigned int new_vertex, resultEnd = 0;
@@ -171,14 +182,16 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
     topoSort->marked[new_vertex] = 1;
 
     unsigned int *adjacents = GraphGetAdjacentsTo(g, new_vertex);
+
     if (adjacents == NULL) {
       GraphTopoSortDestroy(&topoSort);
-      topoSort = NULL;
       return NULL;
     }
+
     int out_degree = adjacents[0];
     if (out_degree == 0)
       continue;
+
     for (int i = 1; i < out_degree + 1; i++) {
       unsigned int adjacent = adjacents[i];
       topoSort->numIncomingEdges[adjacent]--;
@@ -218,6 +231,8 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
   }
 
   for (unsigned int v = 0; v < topoSort->numVertices; v++) {
+    VISITED_VERTS++;
+
     unsigned int inDegree = GraphGetVertexInDegree(g, v);
     topoSort->numIncomingEdges[v] = inDegree;
 
