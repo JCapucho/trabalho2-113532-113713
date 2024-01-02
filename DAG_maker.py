@@ -15,7 +15,7 @@ def main():
                 outgoing_idx = rand.randint(vertex_idx + 1, number_vertices-1)
                 edges.add((vertex_array[vertex_idx], vertex_array[outgoing_idx]))
         
-        output = open(f"GRAPHS/DAG_{number_vertices}_{file}.txt", "a")
+        output = open(f"GRAPHS/DAG_{number_vertices}_{file}.txt", "w")
         output.write(f"1\n0\n{number_vertices}\n{len(edges)}\n")
         for (start, end) in edges:
             output.write(f"{start} {end}\n")
