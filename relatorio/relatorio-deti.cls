@@ -70,7 +70,7 @@
 	\RequirePackage[outputdir=build]{minted}
 	\setminted{autogobble}
 	% Prefix for code listings (default: Listing)
-	\renewcommand{\listingscaption}{Código}
+	\renewcommand{\listingscaption}{Caso em estudo}
 	% Use the chapter number in the listing counter
 	\renewcommand{\thelisting}{\thechapter.\arabic{listing}}
 	% Use TeX box for the minted environment

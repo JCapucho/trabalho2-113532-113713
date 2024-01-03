@@ -1,0 +1,72 @@
+\section{Primeira versão}
+Comecemos por analisar, quanto ao número de vértices visitados, o 1º algoritmo desenvolvido, que utiliza
+uma cópia do grafo original para calcular a sua ordenação
+topológica. 
+
+O algoritmo começa por percorrer todos os vértices até encontrar
+um que ainda não tenha sido marcado e cujo \verb|InDegree| seja
+0. 
+
+
+\subsection{Análise Informal}
+
+Para realizar a análise informal do algorítmo, necessitamos de
+contadores que registem as métricas adotadas. Analisando do
+algoritmo quanto ao número de vértices visitados, então teremos
+que incrementar um contador sempre que visitarmos um novo
+vértice. Contudo, a \verb|performance| do algoritmo será ditada
+por mais fatores do que apenas o número de vértices que este
+visitou, pelo que iremos ter também contadores para o número de
+arestas removidas, o número de comparações efetuadas entre o
+\verb|InDegree| de cada vértice e o número de alocações de
+memória efetuadas.
+
+No final da execução do programa, teremos que imprimir para a
+consola ou para um ficheiro o valor presente em cada contador.
+
+\begin{listing}[H]
+\centering
+\begin{minted}{text}
+Verts	         Edges	          Cmps	        Allocs
+  104	            15	           104	            85
+\end{minted}
+\caption{Contadores no final da execução do primeiro algoritmo}
+\end{listing}
+
+Contudo, para tirar alguma conclusão significativa, teremos que
+utilizar mais do que um grafo, e estes têm que ser semelhantes.
+Iremos então para comparações seguintes utilizar grafos em que
+cada vértice $i$ possui uma aresta para o vértice $i+1$
+
+
+Vejamos então o resultado para tais grafos com diferente número
+de vértices
+
+\begin{listing}[H]
+\centering
+\begin{minted}{text}
+                    Verts	         Edges	          Cmps
+1024 vértices:     526850	          1024	        526850
+2048 vértices:    2102274	          2048	       2102274
+4096 vértices:    8398850	          4096	       8398850
+8192 vértices:   33574914	          8192	      33574914
+16384 vértices: 134258690	         16384	     134258690
+\end{minted}
+\caption{Contadores no final da execução do primeiro algoritmo
+para grafos "sequenciais"}
+\end{listing}
+
+Para, de modo experimental, calcular a complexidade do algoritmo,
+podemos fazer $T(2N) / T(N)$ para uma dada métrica, de modo a
+estimar a sua classe de eficiência.
+
+Em cada um dos casos da tabela obtida, o quociente da divisão
+será aproximadamente 4, sendo mais próximo de 4 quanto maior o
+número de vértices em cada grafo. Como tal, podemos concluir que
+a ordem de complexidade do algoritmo para o tipo de grafos em
+causa será aproximadamente $\mathcal{O}(n^2)$
+
+\subsection{Análise Formal}
+
+Façamos então uma análise formal do caso anterior, de modo a
+verificar se a conclusão obtida é verídica ou não.
