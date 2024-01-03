@@ -27,8 +27,8 @@ consola ou para um ficheiro o valor presente em cada contador.
 \begin{listing}[H]
 	\centering
 	\begin{minted}{text}
-            Verts	         Edges	          Cmps
-SWtinyDAG:    104	            15	           104
+                Verts	     Edges	      Cmps      Iters
+SWtinyDAG:        104	        15	       104        190
   \end{minted}
 	\caption{Contadores no final da execução do primeiro algoritmo}
 \end{listing}
@@ -45,26 +45,28 @@ de vértices
 \begin{listing}[H]
 	\centering
 	\begin{minted}{text}
-                    Verts	         Edges	          Cmps
-1024 vértices:     526850	          1024	        526850
-2048 vértices:    2102274	          2048	       2102274
-4096 vértices:    8398850	          4096	       8398850
-8192 vértices:   33574914	          8192	      33574914
-16384 vértices: 134258690	         16384	     134258690
+                    Verts	 Edges	     Cmps        Iters
+1024 vértices:     526850	  1024	   526850       532999
+2048 vértices:    2102274	  2048	  2102274      2114567
+4096 vértices:    8398850	  4096	  8398850      8423431
+8192 vértices:   33574914	  8192	 33574914     33624071
+16384 vértices: 134258690	 16384	134258690    134356999
   \end{minted}
 	\caption{Contadores no final da execução do primeiro algoritmo
 		para grafos "sequenciais"}
+  \label{1-2}
 \end{listing}
 
 Para, de modo experimental, calcular a complexidade do algoritmo,
 podemos calcular o coeficiente entre $T(2N)$ e $T(N)$ para uma dada métrica, de modo a
 estimar a sua classe de eficiência.
 
-Em cada um dos casos da tabela obtida, o quociente da divisão
-será aproximadamente 4, sendo mais próximo de 4 quanto maior o
-número de vértices em cada grafo. Como tal, podemos concluir que
+Em cada um dos casos da tabela obtida, à exceção do número de arestas 
+visitadas, o quociente da divisão é aproximadamente 4, 
+sendo mais próximo de 4 quanto maior o número de vértices em cada 
+grafo. Como tal, podemos concluir que
 a ordem de complexidade do algoritmo para o tipo de grafos em
-causa será aproximadamente $\mathcal{O}(n^2)$
+causa será aproximadamente $\mathcal{O}(V^2)$, sendo V o número de vértices existentes no grafo.
 
 Note-se também que o número de comparações efetuadas é igual ao
 número de vértices visitados, conclusão que é algo relativamente
@@ -81,24 +83,23 @@ o vértice $i + 1$ e para o vértice $i + 2$.
 \begin{listing}[H]
 	\centering
 	\begin{minted}{text}
-                    Verts	         Edges	          Cmps
-1024 vértices:     526850	          2046	        526850
-2048 vértices:    2102274	          4094	       2102274
-4096 vértices:    8398850	          8190	       8398850
-8192 vértices:   33574914	         16382	      33574914
-16384 vértices: 134258690	         32766	     134258690
+                    Verts	     Edges	      Cmps        Iters
+1024 vértices:     526850	      2046	    526850       536065
+2048 vértices:    2102274	      4094	   2102274      2120705
+4096 vértices:    8398850	      8190	   8398850      8435713
+8192 vértices:   33574914	     16382	  33574914     33648641
+16384 vértices: 134258690	     32766	 134258690    134406145
   \end{minted}
 	\caption{Contadores no final da execução do primeiro algoritmo
 		para grafos "sequenciais"}
+  \label{1-3}
 \end{listing}
 
 O número de vértices visitados é igual, tal como o número de
-comparações efetuadas. A diferença, como seria de esperar, reside
-apenas no número de arestas visitadas. Como todos os vértices
-possuem agora um \verb|InDegree| de 2, exceto os 2 primeiros
-vértices, então o número de arestas visitadas corresponde ao
-número de arestas existentes no grafo. Como tal, podemos concluir
-que o número de arestas não afeta o número de vértices visitados.
+comparações efetuadas. As diferenças, como seria de esperar, residem
+apenas no número de arestas visitadas e iterações realizadas.
+Como tal, podemos concluir que o número de arestas não afeta o número de vértices visitados, mas afeta o número de
+iterações realizadas.
 
 \section{Análise Formal}
 
@@ -125,7 +126,7 @@ iterar por todas as suas arestas de saída. Note-se que isto
 resulta em percorrer todas as arestas do grafo.
 
 Consideremos então V como sendo o número de vértices do grafo, e
-E como sendo o númerp de arestas exeistentes no grafo. Traduzindo o referido anteriormente num somatório, obtemos:
+E como sendo o número de arestas exeistentes no grafo. Traduzindo o referido anteriormente num somatório, obtemos:
 
 \begin{listing}[H]
 	\begin{align}
@@ -141,5 +142,17 @@ E como sendo o númerp de arestas exeistentes no grafo. Traduzindo o referido an
 
 Como tal, calculámos o número de iterações realizado no pior dos
 casos do algorítmo e podemos concluir que a sua complexidade é
-$\mathcal{O}(V(V+E))$, equivalente a $\mathcal{O}(V^2+(V \cdot
-	E))$
+$\mathcal{O}(V(V+E))$, equivalente a $\mathcal{O}(V^2+(V \cdot E))$
+
+Note-se que para calcular o número de vértices visitados, teríamos apenas que omitir a iteração pelas arestas de cada
+vértice.
+
+Isto acaba por comprovar as conclusões tiradas na nossa análise informal, uma vez que de facto o algorítmo possui uma
+complexidade quadrática, e de facto o número de arestas existentes no grafo afeta o número de iterações realizado, mas
+não afeta o número de vértices visitados.
+
+
+O melhor caso possível para este algorítmo é aquele em não existe
+nenhum vértice cujo \verb|InDegree| seja 0, pelo que aquando da
+primeira iteração não é selecionado nenhum vértice. Como tal, o
+melhor caso é $\Omega(V)$
