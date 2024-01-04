@@ -1,24 +1,23 @@
 \chapter{Primeira versão}
-Comecemos por analisar, quanto ao número de vértices visitados, o 1º algoritmo desenvolvido, que utiliza
-uma cópia do grafo original para calcular a sua ordenação
-topológica.
+Comecemos por analisar, quanto ao número de vértices visitados, o 1º algoritmo
+desenvolvido, que utiliza uma cópia do grafo original para calcular a sua
+ordenação topológica.
 
-O algoritmo começa por percorrer todos os vértices até encontrar
-um que ainda não tenha sido marcado e cujo \verb|InDegree| seja
-0.
+O algoritmo começa por percorrer todos os vértices até encontrar um que ainda
+não tenha sido marcado e cujo \cinline{inDegree} seja 0.
 
 
 \section{Análise Informal}
 
-Para realizar a análise informal do algorítmo, necessitamos de
+Para realizar a análise informal do algoritmo, necessitamos de
 contadores que registem as métricas adotadas. Analisando do
 algoritmo quanto ao número de vértices visitados, então teremos
 que incrementar um contador sempre que visitarmos um novo
-vértice. Contudo, a \verb|performance| do algoritmo será ditada
+vértice. Contudo, o desempenho do algoritmo será ditado
 por mais fatores do que apenas o número de vértices que este
 visitou, pelo que iremos ter também contadores para o número de
 arestas removidas, o número de comparações efetuadas entre o
-\verb|InDegree| de cada vértice e o número de alocações de
+\cinline{inDegree} de cada vértice e o número de alocações de
 memória efetuadas.
 
 No final da execução do programa, teremos que imprimir para a
@@ -29,7 +28,7 @@ consola ou para um ficheiro o valor presente em cada contador.
 	\begin{minted}{text}
                 Verts	     Edges	      Cmps      Iters
 SWtinyDAG:        104	        15	       104        190
-  \end{minted}
+	\end{minted}
 	\caption{Contadores no final da execução do primeiro algoritmo}
 \end{listing}
 
@@ -51,27 +50,28 @@ de vértices
 4096 vértices:    8398850	  4096	  8398850      8423431
 8192 vértices:   33574914	  8192	 33574914     33624071
 16384 vértices: 134258690	 16384	134258690    134356999
-  \end{minted}
-	\caption{Contadores no final da execução do primeiro algoritmo
-		para grafos "sequenciais"}
-  \label{1-2}
+	\end{minted}
+	\caption{Contadores no final da execução para grafos \enquote{sequenciais}}
+	\label{1-2}
 \end{listing}
 
 Para, de modo experimental, calcular a complexidade do algoritmo,
-podemos calcular o coeficiente entre $T(2N)$ e $T(N)$ para uma dada métrica, de modo a
-estimar a sua classe de eficiência.
+% coeficiente? divisão?
+podemos calcular o coeficiente entre $T(2N)$ e $T(N)$ para uma dada métrica,
+de modo a estimar a sua classe de eficiência.
 
-Em cada um dos casos da tabela obtida, à exceção do número de arestas 
-visitadas, o quociente da divisão é aproximadamente 4, 
-sendo mais próximo de 4 quanto maior o número de vértices em cada 
+Em cada um dos casos da tabela obtida, à exceção do número de arestas
+visitadas, o quociente da divisão é aproximadamente 4,
+sendo mais próximo de 4 quanto maior o número de vértices em cada
 grafo. Como tal, podemos concluir que
 a ordem de complexidade do algoritmo para o tipo de grafos em
-causa será aproximadamente $\mathcal{O}(V^2)$, sendo V o número de vértices existentes no grafo.
+causa será aproximadamente $\mathcal{O}\left( V^2 \right)$, sendo V o número de
+vértices existentes no grafo.
 
 Note-se também que o número de comparações efetuadas é igual ao
 número de vértices visitados, conclusão que é algo relativamente
 óbvio de compreender, uma vez que por cada vértice que visitamos
-temos que verificar se o seu \verb|InDegree| é 0, ou se o vértice
+temos que verificar se o seu \cinline{inDegree} é 0, ou se o vértice
 já foi marcado.
 
 Contudo, a experiência realizada não nos permite concluir se o
@@ -89,70 +89,70 @@ o vértice $i + 1$ e para o vértice $i + 2$.
 4096 vértices:    8398850	      8190	   8398850      8435713
 8192 vértices:   33574914	     16382	  33574914     33648641
 16384 vértices: 134258690	     32766	 134258690    134406145
-  \end{minted}
+	\end{minted}
 	\caption{Contadores no final da execução do primeiro algoritmo
-		para grafos "sequenciais"}
-  \label{1-3}
+		para grafos \enquote{sequenciais}}
+	\label{1-3}
 \end{listing}
 
 O número de vértices visitados é igual, tal como o número de
 comparações efetuadas. As diferenças, como seria de esperar, residem
 apenas no número de arestas visitadas e iterações realizadas.
-Como tal, podemos concluir que o número de arestas não afeta o número de vértices visitados, mas afeta o número de
-iterações realizadas.
+Como tal, podemos concluir que o número de arestas não afeta o número de
+vértices visitados, mas afeta o número de iterações realizadas.
 
 \section{Análise Formal}
 
-Façamos então uma análise formal do caso anterior, de modo a
+Procedemos então a uma análise formal do caso anterior, de modo a
 verificar se a conclusão obtida é verídica ou não.
 
+Sabemos que o algoritmo percorre todos os vértices sequencialmente até encontrar
+um vértice não visitado cujo \cinline{inDegree} seja 0, este será marcado como
+tendo sido visitado, as suas arestas de saída serão iteradas e a pesquisa por
+vértices será recomeçada.
 
-Sabemos que o algorítmo percorre, até que não haja vértices
-restantes, todos os vértices de modo
-sequencial até encontrar um vértice não visitado cujo
-\verb|InDegree|, e que por cada vértice válido encontrado, irá
-iterar por todas as suas arestas de saída.
+Uma pesquisa por todos os vértices é uma operação linear, pois temos que iterar
+pelos vértices para verificar se cumprem as condições.
 
-Iterar até que não haja mais vértices restantes é uma operação de
-ordem linear (Iremos ter que iterar todos os vértices).
+Como por cada vértice válido encontrado, ou seja, não marcado e cujo
+\cinline{inDegree} seja 0, teremos que reiniciar a pesquisa, no pior caso
+teremos que iterar todos os vértices outra vez.
 
-A cada nova iteração, temos que selecionar um novo vértice
-válido, ou seja, não marcado e cujo \verb|InDegree| seja 0. Isto
-involve, no pior dos casos, iterar todos os vértices uma vez
-mais.
+Além disso, para cada vértice válido, vamos ter de iterar por todas as suas
+arestas de saída. Note-se que isto num pior caso, onde todos os vértices são
+válidos resulta em percorrer todas as arestas do grafo.
 
-Por fim, após a seleção de um vértice válido, iremos ter que
-iterar por todas as suas arestas de saída. Note-se que isto
-resulta em percorrer todas as arestas do grafo.
-
-Consideremos então V como sendo o número de vértices do grafo, e
-E como sendo o número de arestas exeistentes no grafo. Traduzindo o referido anteriormente num somatório, obtemos:
+Consideremos então $V$ como sendo o conjunto de vértices do grafo e $E$ o
+conjunto de arestas existentes no grafo. Traduzindo o referido anteriormente num
+somatório, obtemos:
 
 \begin{listing}[H]
 	\begin{align}
-		 & \sum_{i = 0}^{V} \sum_{j=0}^{V} (1 + \sum_{k=0}^{deg(v)}) =
-		\\
-		 & \sum_{i = 0}^{V} \sum_{j=0}^{V} 1 + \sum_{j=0}^{V}
-		\sum_{k=0}^{deg(v)}                                            \\
-		 & \sum_{i=0}^{V} (V + E)                                      \\
-		 & V(V+E)
+		  & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V}}
+		\left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right)             \\
+		= & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V}} 1
+		+ \sum_{v=1}^{\norm{V}} \sum_{k=1}^{deg^+(v)} 1        \\
+		= & \sum_{i=0}^{V} (V + E)                             \\
+		= & V(V+E)
 	\end{align}
 	\caption{Complexidade do pior caso}
 \end{listing}
 
 Como tal, calculámos o número de iterações realizado no pior dos
-casos do algorítmo e podemos concluir que a sua complexidade é
-$\mathcal{O}(V(V+E))$, equivalente a $\mathcal{O}(V^2+(V \cdot E))$
+casos do algoritmo e podemos concluir que a sua complexidade é
+$\mathcal{O}\left(\norm{V} \cdot \left[ \norm{V} + \norm{E} \right] \right)$,
+equivalente a
+$\mathcal{O}\left(\norm{V}^2 + \norm{V} \cdot \norm{E} \right)$
 
-Note-se que para calcular o número de vértices visitados, teríamos apenas que omitir a iteração pelas arestas de cada
-vértice.
+Note-se que para calcular o número de vértices visitados, teríamos apenas que
+omitir a iteração pelas arestas de cada vértice.
 
-Isto acaba por comprovar as conclusões tiradas na nossa análise informal, uma vez que de facto o algorítmo possui uma
-complexidade quadrática, e de facto o número de arestas existentes no grafo afeta o número de iterações realizado, mas
+Isto acaba por comprovar as conclusões tiradas na nossa análise informal, uma
+vez que de facto o algoritmo possui uma complexidade quadrática, e de facto o
+número de arestas existentes no grafo afeta o número de iterações realizado, mas
 não afeta o número de vértices visitados.
 
-
-O melhor caso possível para este algorítmo é aquele em não existe
-nenhum vértice cujo \verb|InDegree| seja 0, pelo que aquando da
+O melhor caso possível para este algoritmo é aquele em não existe
+nenhum vértice cujo \cinline{inDegree} seja 0, pelo que aquando da
 primeira iteração não é selecionado nenhum vértice. Como tal, o
-melhor caso é $\Omega(V)$
+melhor caso é $\Omega\left(\norm{V}\right)$
