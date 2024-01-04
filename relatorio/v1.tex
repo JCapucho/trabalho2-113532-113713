@@ -133,17 +133,17 @@ somatório, obtemos:
 		\left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right)             \\
 		= & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V - marked}} 1
 		+ \sum_{v=1}^{\norm{V}} \sum_{k=1}^{deg^+(v)} 1        \\
-    = & \sum_{i=0}^{V} (\frac{V+1}{2} + E)                             \\
-		= & V(V+E)
+    = & \sum_{i=0}^{V} (\frac{\norm{V}+1}{2} + E)                             \\
+    = & V(\frac{V+1}{2}+E)
 	\end{align}
 	\caption{Complexidade do pior caso}
 \end{listing}
 
 Como tal, calculámos o número de iterações realizado no pior dos
 casos do algoritmo e podemos concluir que a sua complexidade é
-$\mathcal{O}\left(\norm{V} \cdot \left[ \norm{V} + \norm{E} \right] \right)$,
+$\mathcal{O}\left(\norm{V} \cdot \left[ \frac{\norm{V}+1}{2} + \norm{E} \right] \right)$,
 equivalente a
-$\mathcal{O}\left(\norm{V}^2 + \norm{V} \cdot \norm{E} \right)$
+$\mathcal{O}\left(\frac{\norm{V}^2 + \norm{V}}{2} \cdot \norm{E} \right)$
 
 Note-se que para calcular o número de vértices visitados, teríamos apenas que
 omitir a iteração pelas arestas de cada vértice.
