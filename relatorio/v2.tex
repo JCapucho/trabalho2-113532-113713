@@ -1,10 +1,10 @@
 \chapter{Segunda versão}
 
-A segunda versão do algorítmo é bastante semelhante com a
+A segunda versão do algoritmo é bastante semelhante com a
 primeira, sendo a principal diferença o modo de como as
 arestas são "removidas". Enquanto que a primeira versão
 fazia uma cópia do grafo e removia diretamente as arestas, a
-segunda versão apenas guarda o \verb|InDegree| de cada
+segunda versão apenas guarda o \cinline{inDegree} de cada
 vértice num array, e depois decrementa o valor presente
 nesse array. Como tal, as conclusões a tirar quanto à
 segunda versão serão também elas bastante semelhantes com as
@@ -26,8 +26,7 @@ facilmente comparar os resultados obtidos.
 8192 vértices:   33583107	 8192	 33583107	 33591299
 16384 vértices: 134275075	16384	134275075	134291459
   \end{minted}
-	\caption{Resultados da primeira experiência realizada para
-		a segunda versão do algorítmo}
+	\caption{Resultados da primeira experiência utilizando o segundo algoritmo}
 	\label{2-1}
 \end{listing}
 
@@ -41,31 +40,28 @@ facilmente comparar os resultados obtidos.
 8192 vértices:   33583107	16382	 33583107	  33599489
 16384 vértices: 134275075	32766	134275075	 134307841
   \end{minted}
-	\caption{Resultados da segunda experiência realizada para
-		a segunda versão do algorítmo}
+	\caption{Resultados da segunda experiência utilizando o segundo algoritmo}
 	\label{2-2}
 \end{listing}
 
-Comparando os resultados de [\ref{2-1}] com [\ref{1-2}] e de
-	[\ref{2-2}] com [\ref{1-3}], podemos concluir que de facto a
-performance dos algorítmos nas métricas selecionadas é
-bastante semelhante.
+Comparando os resultados das listagem \ref{2-1} com \ref{1-2} e da \ref{2-2} com
+\ref{1-3}, podemos concluir que de facto a performance dos algoritmos nas
+métricas selecionadas é bastante semelhante.
 
-Uma vez mais, ao calcular o coeficiente de $T(2N)$ por
-$T(N)$, voltamos a obter aproximadamente 4, resultando numa complexidade quadrática para o algorítmo, onde o número de arestas presente no grafo tem
-impacto no número de iterações realizadas, mas não no número
-de vértices visitados.
+Uma vez mais, ao calcular o coeficiente de $T(2N)$ por $T(N)$, voltamos a obter
+aproximadamente 4, resultando numa complexidade quadrática para o algoritmo,
+onde o número de arestas presente no grafo tem impacto no número de iterações
+realizadas, mas não no número de vértices visitados.
 
 \section{Análise Formal}
 
-O segundo algorítmo tem o mesmo processo da primeira versão,
+O segundo algoritmo tem o mesmo processo da primeira versão,
 que consiste em enquanto for possível selecionar um vértice
-não marcado com \verb|InDegree| igual a 0, e iterar as
-arestas que desse vértice saem. Como tal, os melhor e pior
-caso para este segundo algorítmo são iguais aos do primeiro
-algorítmo.
+não marcado com \cinline{inDegree} igual a 0, e iterar as
+arestas que desse vértice saem. Como tal, o melhor e pior
+caso para este segundo algoritmo são iguais aos do primeiro
+algoritmo.
 
-Como tal, podemos afirmar que o melhor caso é $B(V, E) = V$,
-e o pior caso é $W(V,E) = V(V+E)$, sendo V o número de
-vértices existentes no grafo e E o número de arestas
-existentes no grafo.
+Como tal, podemos afirmar que o melhor caso é $B(V, E) = \norm{V}$,
+e o pior caso é $W(V,E) = \norm{V} \cdot \left(\norm{V} + \norm{E}\right)$,
+sendo $V$ o conjunto de vértices do grafo e $E$ o conjunto de arestas.
