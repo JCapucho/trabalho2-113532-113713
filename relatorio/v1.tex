@@ -116,7 +116,8 @@ pelos vértices para verificar se cumprem as condições.
 
 Como por cada vértice válido encontrado, ou seja, não marcado e cujo
 \cinline{inDegree} seja 0, teremos que reiniciar a pesquisa, no pior caso
-teremos que iterar todos os vértices outra vez.
+teremos que iterar todos os vértices menos o número de vértices já marcados, 
+que aumenta por 1 unidade a cada iteração.
 
 Além disso, para cada vértice válido, vamos ter de iterar por todas as suas
 arestas de saída. Note-se que isto num pior caso, onde todos os vértices são
@@ -128,11 +129,11 @@ somatório, obtemos:
 
 \begin{listing}[H]
 	\begin{align}
-		  & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V}}
+		  & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V - marked}}
 		\left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right)             \\
-		= & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V}} 1
+		= & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V - marked}} 1
 		+ \sum_{v=1}^{\norm{V}} \sum_{k=1}^{deg^+(v)} 1        \\
-		= & \sum_{i=0}^{V} (V + E)                             \\
+    = & \sum_{i=0}^{V} (\frac{V+1}{2} + E)                             \\
 		= & V(V+E)
 	\end{align}
 	\caption{Complexidade do pior caso}
