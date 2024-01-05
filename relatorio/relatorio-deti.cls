@@ -29,6 +29,7 @@
 % Define variables and commands to use in the title page
 \newcommand*{\cadeira}[1]{\gdef\@cadeira{#1}}
 \newcommand*{\relatorioAno}[1]{\gdef\@relatorioAno{#1}}
+\newcommand*{\coverFootnotes}[1]{\gdef\@coverFootnotes{#1}}
 
 % Required for lists
 \RequirePackage{etoolbox}
@@ -49,7 +50,12 @@
 \RequirePackage{setspace}
 % Makes all references hyperlinked
 % NOTE: Must be loaded after setspace or it breaks
-\RequirePackage[hidelinks]{hyperref}
+\RequirePackage[
+	hidelinks,
+	colorlinks=true,
+	urlcolor=cyan,
+	linkcolor=.
+]{hyperref}
 % Needed for the figure H
 \RequirePackage{float}
 % Needed for including images
@@ -180,6 +186,10 @@
 			\end{tabular}
 			\vfill
 			{\Large \@relatorioAno}
+			\ifdefined\@coverFootnotes
+				\vspace{1cm}\\
+				\@coverFootnotes
+			\fi
 		\end{center}
 
 	\end{titlepage}
