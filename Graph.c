@@ -9,6 +9,7 @@
 #include "Graph.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -282,6 +283,7 @@ Graph *GraphFromFile(FILE *f) {
     // Check that all expected values were properly read
     if (res != expectedRead) {
       GraphDestroy(&graph);
+      errno = EINVAL;
       return NULL;
     }
 

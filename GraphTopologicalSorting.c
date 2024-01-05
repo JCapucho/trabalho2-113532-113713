@@ -272,6 +272,7 @@ GraphTopoSort *GraphTopoSortComputeV3(Graph *g) {
   unsigned int resultEnd = 0;
   while (!QueueIsEmpty(queue)) {
     ITERATIONS++;
+    VISITED_VERTS++;
     // Remove the element from the queue for processing
     unsigned int v = QueueDequeue(queue);
 

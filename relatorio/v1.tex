@@ -126,7 +126,7 @@ Consideremos então $V$ como sendo o conjunto de vértices do grafo e $E$ o
 conjunto de arestas existentes no grafo. Traduzindo o referido anteriormente num
 somatório, obtemos:
 
-\begin{listing}[H]
+\begin{formula}[H]
 	\begin{align}
 		  & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V} - i + 1}
 		\left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right)                          \\
@@ -142,7 +142,7 @@ somatório, obtemos:
 		= & \norm{V} \cdot \left( \frac{\norm{V} + 1}{2} \right) + \norm{E}
 	\end{align}
 	\caption{Complexidade do pior caso}
-\end{listing}
+\end{formula}
 
 Como tal, calculámos o número de iterações realizado no pior dos
 casos do algoritmo e podemos concluir que a sua complexidade é

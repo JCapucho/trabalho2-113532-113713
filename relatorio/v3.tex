@@ -1,5 +1,94 @@
-\section{Primeira versão}
+\chapter{Terceira versão}
 
-\subsection{Análise Informal}
+A terceira versão do algoritmo difere das outras duas através do uso de uma
+estrutura de dados adicional, uma \textbf{\textit{Queue}}, está será utilizada
+para guardar os vértices a visitar, ou seja, que não tem arestas incidentes.
 
-\subsection{Análise Formal}
+\section{Análise Informal}
+
+Mais uma vez, o algoritmo foi comparado com os mesmos grafo que foram utilizados
+para produzir as listagens \ref{1-2} e \ref{2-1}, obtendo os seguintes resultados:
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{| c || c | c | c | c |}
+		\hline
+		Vértices & Vértices visitados & Arestas visitadas & Comparações & Iterações \\
+		\hline\hline
+		1024     & 2048               & 1023              & 2047        & 3071      \\
+		2048     & 4096               & 2047              & 4095        & 6143      \\
+		4096     & 8192               & 4095              & 8191        & 12287     \\
+		8192     & 16384              & 8191              & 16383       & 24575     \\
+		16384    & 32768              & 16383             & 32767       & 49151     \\
+		\hline
+	\end{tabular}
+	\caption{Resultados da primeira experiência utilizando o segundo algoritmo}
+	\label{table:v3-one}
+\end{table}
+
+Também foram recolhidos os resultados com os grafos com mais arestas
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{| c || c | c | c | c |}
+		\hline
+		Vértices & Vértices visitados & Arestas visitadas & Comparações & Iterações \\
+		\hline\hline
+		1024     & 2048               & 2044              & 3068        & 4092      \\
+		2048     & 4096               & 4092              & 6140        & 8188      \\
+		4096     & 8192               & 8188              & 12284       & 16380     \\
+		8192     & 16384              & 16380             & 24572       & 32764     \\
+		16384    & 32768              & 32764             & 49148       & 65532     \\
+		\hline
+	\end{tabular}
+	\caption{Resultados da segunda experiência utilizando o terceiro algoritmo}
+	\label{table:v3-two}
+\end{table}
+
+Comparando os resultados obtidos com os dos outros algoritmos, notamos uma clara
+redução em todas as métricas (com a exceção do número de arestas visitadas).
+
+Isto reflete-se no cálculo do quociente $T(2N)$ por $T(N)$, que desta vez é
+$\approx 2$ para todas as métricas, indicando que existe uma relação linear
+entre o número de vértices e estas.
+
+\section{Análise Formal}
+
+O algoritmo divide-se em duas fases, na primeira todos os vértices são
+percorridos a procura de vértices que tenham um \cinline{inDegree} igual a 0,
+estes são adicionados a \textit{Queue}.
+
+A segunda fase executa enquanto existirem elementos na \textit{Queue}, removendo
+um elemento desta a cada iteração, estes vértices são usados para decrementar o
+\cinline{inDegree} de todos os vértices a que são adjacentes. Se algum dos
+vértices adjacentes ficar com o \cinline{inDegree} igual a 0 após ter sido
+decrementado, este será adicionado a \textit{Queue} para ser processado.
+
+O melhor caso do algoritmo é então quando não existe nenhum vértice com
+\cinline{inDegree} igual a 0, ou seja, apenas a primeira fase é executada,
+obtendo então um melhor caso de $B(V, E) = \norm{V}$ e uma ordem de
+complexidade de $\Omega(\norm{V})$, onde $V$ é o conjunto de vértices do
+grafo.
+
+O pior caso acontece quando todos os vértices são adicionados a \textit{Queue}
+para processamento, independentemente se isto ocorre na primeira ou segunda
+fase. Neste caso a segunda fase executará para todos os vértices e as suas
+arestas. Logo, podemos descrever o número de iterações do pior caso através
+da fórmula.
+
+\begin{formula}[H]
+	\begin{align}
+		  & \sum_{i = 1}^{\norm{V}} 1  + \sum_{v=1}^{\norm{V}} \left(
+		1 + \sum_{k=1}^{deg^+(v)} 1
+		\right)                                                       \\
+		= & \norm{V}  + \sum_{v=1}^{\norm{V}} 1
+		+ \sum_{v=1}^{\norm{V}} deg^+(v)                              \\
+		= & \norm{V}  + \norm{V} + \norm{E}                           \\
+		= & 2 \norm{V} + \norm{E}
+	\end{align}
+	\caption{Complexidade do pior caso}
+\end{formula}
+
+Obtendo uma ordem de complexidade para o pior caso de
+$\Omega\mathcal{O}(\norm{V} + \norm{E})$.
+
