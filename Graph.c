@@ -633,6 +633,17 @@ int GraphCheckInvariants(const Graph *g) {
   if (g->numVertices != ListGetSize(g->verticesList))
     return 0;
 
+  int isValid = 1;
+  // If the graph is directioned we need to check if the number of
+  // incident edges is equal to the vertices inDegree, so we store
+  // a count of how many edges are incident to check later
+  unsigned int *inDegrees = NULL;
+  if (g->isDigraph) {
+    inDegrees = calloc(g->numVertices, sizeof(unsigned int));
+    if (inDegrees == NULL)
+      return 0;
+  }
+
   unsigned int countedEdges = 0;
   ListMoveToHead(g->verticesList);
   for (unsigned int i = 0; i < ListGetSize(g->verticesList);
@@ -640,12 +651,17 @@ int GraphCheckInvariants(const Graph *g) {
     const struct _Vertex *v = ListGetCurrentItem(g->verticesList);
     const unsigned int numEdgesVertex = ListGetSize(v->edgesList);
 
-    if (v->outDegree != numEdgesVertex)
-      return 0;
+    if (v->outDegree != numEdgesVertex) {
+      isValid = 0;
+      goto GraphCheckInvariantsCleanup;
+    }
 
-    if (g->isComplete && (v->outDegree != g->numVertices - 1 ||
-                          (g->isDigraph && v->inDegree != g->numVertices - 1)))
-      return 0;
+    if (g->isComplete &&
+        (v->outDegree != g->numVertices - 1 ||
+         (g->isDigraph && v->inDegree != g->numVertices - 1))) {
+      isValid = 0;
+      goto GraphCheckInvariantsCleanup;
+    }
 
     // Search trough all edges
     ListMoveToHead(v->edgesList);
@@ -654,8 +670,14 @@ int GraphCheckInvariants(const Graph *g) {
       const struct _Edge *edge = ListGetCurrentItem(v->edgesList);
 
       // Check that there are no loop edges
-      if (v->id == edge->adjVertex)
-        return 0;
+      if (v->id == edge->adjVertex) {
+        isValid = 0;
+        goto GraphCheckInvariantsCleanup;
+      }
+
+      // Increase the count of incident edges on the adjacent vertex
+      if (g->isDigraph)
+        inDegrees[edge->adjVertex]++;
     }
 
     // TODO: Check that bigraphs mirror the edges
@@ -682,16 +704,32 @@ int GraphCheckInvariants(const Graph *g) {
     //   ListMove(g->verticesList, v->id);
     // }
 
-    // TODO: Check that digraph inDegree matches other edges
-
     countedEdges += numEdgesVertex;
+  }
+
+  // Check that the inDegree matches the number of incident edges
+  // (Digraphs only)
+  if (g->isDigraph) {
+    ListMoveToHead(g->verticesList);
+    for (unsigned int i = 0; i < ListGetSize(g->verticesList);
+         ListMoveToNext(g->verticesList), i++) {
+      const struct _Vertex *v = ListGetCurrentItem(g->verticesList);
+      if (inDegrees[i] != v->inDegree) {
+        isValid = 0;
+        goto GraphCheckInvariantsCleanup;
+      }
+    }
   }
 
   if ((g->isDigraph && countedEdges != g->numEdges) ||
       (!g->isDigraph && countedEdges / 2 != g->numEdges))
-    return 0;
+    isValid = 0;
 
-  return 1;
+GraphCheckInvariantsCleanup:
+  if (g->isDigraph)
+    free(inDegrees);
+
+  return isValid;
 }
 
 // DISPLAYING on the console

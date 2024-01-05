@@ -93,5 +93,8 @@ int main(void) {
   assert(GraphGetNumEdges(graph) == 13);
   assert(GraphCheckInvariants(graph));
 
+  GraphDestroy(&graph);
+  fclose(file);
+
   return 0;
 }
