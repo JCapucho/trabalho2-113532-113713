@@ -131,24 +131,24 @@ somatório, obtemos:
 		  & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V} - i + 1}
 		\left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right)                          \\
 		= & \sum_{i = 1}^{\norm{V}} (\norm{V} - i + 1)
-		+ \sum_{v=1}^{\norm{V}} \sum_{k=1}^{deg^+(v)} 1                     \\
+		+ \sum_{v=1}^{\norm{V}} deg^+(v)                                    \\
 		= & \sum_{i=1}^{\norm{V}} \norm{V} - \sum_{i=1}^{\norm{V}} i
-		+ \sum_{i=1}^{\norm{V}} 1 + \sum_{i=1}^{\norm{V}} \norm{E}          \\
+		+ \sum_{i=1}^{\norm{V}} 1 + \norm{E}                                \\
 		= & \norm{V}^2 - \frac{\norm{V} \cdot (\norm{V} + 1)}{2} + \norm{V}
-		+ \norm{V} \cdot \norm{E}                                           \\
+		+ \norm{E}                                                          \\
 		= & \norm{V} \cdot \left(
-		\norm{V} - \frac{\norm{V} + 1}{2} + 1 + \norm{E}
-		\right)                                                             \\
-		= & \norm{V} \cdot \left( \frac{\norm{V} + 1}{2} + \norm{E} \right)
+		\norm{V} - \frac{\norm{V} + 1}{2} + 1
+		\right) + \norm{E}                                                  \\
+		= & \norm{V} \cdot \left( \frac{\norm{V} + 1}{2} \right) + \norm{E}
 	\end{align}
 	\caption{Complexidade do pior caso}
 \end{listing}
 
 Como tal, calculámos o número de iterações realizado no pior dos
 casos do algoritmo e podemos concluir que a sua complexidade é
-$\mathcal{O}\left(\norm{V} \cdot \left[ \frac{\norm{V}+1}{2} + \norm{E} \right] \right)$,
+$\mathcal{O}\left(\norm{V} \cdot \frac{\norm{V}+1}{2} + \norm{E} \right)$,
 equivalente a
-$\mathcal{O}\left(\frac{\norm{V}^2 + \norm{V}}{2} + \norm{V} \cdot \norm{E} \right)$
+$\mathcal{O}\left(\frac{\norm{V}^2 + \norm{V}}{2} + \norm{E} \right)$
 
 Note-se que para calcular o número de vértices visitados, teríamos apenas que
 omitir a iteração pelas arestas de cada vértice.
