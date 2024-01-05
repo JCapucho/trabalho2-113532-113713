@@ -9,51 +9,38 @@ não tenha sido marcado e cujo \cinline{inDegree} seja 0.
 
 \section{Análise Informal}
 
-Para realizar a análise informal do algoritmo, necessitamos de
-contadores que registem as métricas adotadas. Analisando do
-algoritmo quanto ao número de vértices visitados, então teremos
-que incrementar um contador sempre que visitarmos um novo
-vértice. Contudo, o desempenho do algoritmo será ditado
-por mais fatores do que apenas o número de vértices que este
-visitou, pelo que iremos ter também contadores para o número de
-arestas removidas, o número de comparações efetuadas entre o
-\cinline{inDegree} de cada vértice e o número de alocações de
-memória efetuadas.
+Para realizar a análise informal do algoritmo, necessitamos de contadores que
+registem as métricas adotadas. Por exemplo, analisando o algoritmo quanto ao
+número de vértices visitados, teremos que incrementar um contador sempre
+que visitarmos um novo vértice. Contudo, o desempenho do algoritmo será ditado
+por mais fatores do que apenas o número de vértices que este visitou, pelo que
+iremos ter também contadores para o número de arestas removidas, o número de
+comparações efetuadas entre o \cinline{inDegree} de cada vértice.
 
-No final da execução do programa, teremos que imprimir para a
-consola ou para um ficheiro o valor presente em cada contador.
-
-\begin{listing}[H]
-	\centering
-	\begin{minted}{text}
-                Verts	     Edges	      Cmps      Iters
-SWtinyDAG:        104	        15	       104        190
-	\end{minted}
-	\caption{Contadores no final da execução do primeiro algoritmo}
-\end{listing}
-
-Contudo, para tirar alguma conclusão significativa, teremos que
+Além disso, e para tirar alguma conclusão significativa, teremos que
 utilizar mais do que um grafo, e estes têm que ser semelhantes.
-Iremos então para comparações seguintes utilizar grafos em que
-cada vértice $i$ possui uma aresta para o vértice $i+1$
-
+Iremos então para as comparações seguintes utilizar grafos em que
+cada vértice $i$ possui uma aresta para o vértice $i+1$.
 
 Vejamos então o resultado para tais grafos com diferente número
 de vértices
 
-\begin{listing}[H]
+\begin{table}[H]
 	\centering
-	\begin{minted}{text}
-                    Verts	 Edges	     Cmps        Iters
-1024 vértices:     526850	  1024	   526850       532999
-2048 vértices:    2102274	  2048	  2102274      2114567
-4096 vértices:    8398850	  4096	  8398850      8423431
-8192 vértices:   33574914	  8192	 33574914     33624071
-16384 vértices: 134258690	 16384	134258690    134356999
-	\end{minted}
+	\begin{tabular}{| c || c | c | c | c |}
+		\hline
+		Vértices & Vértices visitados & Arestas visitadas & Comparações & Iterações \\
+		\hline\hline
+		1024     & 525824             & 1023              & 525824      & 531967    \\
+		2048     & 2100224            & 2047              & 2100224     & 2112511   \\
+		4096     & 8394752            & 4095              & 8394752     & 8419327   \\
+		8192     & 33566720           & 8191              & 33566720    & 33615871  \\
+		16384    & 134242304          & 16383             & 134242304   & 134340607 \\
+		\hline
+	\end{tabular}
 	\caption{Contadores no final da execução para grafos \enquote{sequenciais}}
 	\label{1-2}
-\end{listing}
+\end{table}
 
 Para, de modo experimental, calcular a complexidade do algoritmo,
 podemos calcular o quociente entre $T(2N)$ e $T(N)$ para uma dada métrica,
@@ -79,20 +66,22 @@ no número de vértices visitado. Para tal, realizemos a mesma
 experiência, só que agora cada vértice $i$ possui uma aresta para
 o vértice $i + 1$ e para o vértice $i + 2$.
 
-\begin{listing}[H]
+\begin{table}[H]
 	\centering
-	\begin{minted}{text}
-                    Verts	     Edges	      Cmps        Iters
-1024 vértices:     526850	      2046	    526850       536065
-2048 vértices:    2102274	      4094	   2102274      2120705
-4096 vértices:    8398850	      8190	   8398850      8435713
-8192 vértices:   33574914	     16382	  33574914     33648641
-16384 vértices: 134258690	     32766	 134258690    134406145
-	\end{minted}
-	\caption{Contadores no final da execução do primeiro algoritmo
-		para grafos \enquote{sequenciais}}
+	\begin{tabular}{| c || c | c | c | c |}
+		\hline
+		Vértices & Vértices visitados & Arestas visitadas & Comparações & Iterações \\
+		\hline\hline
+		1024     & 525824             & 2044              & 525824      & 527868    \\
+		2048     & 2100224            & 4092              & 2100224     & 2104316   \\
+		4096     & 8394752            & 8188              & 8394752     & 8402940   \\
+		8192     & 33566720           & 16380             & 33566720    & 33583100  \\
+		16384    & 134242304          & 32764             & 134242304   & 134275068 \\
+		\hline
+	\end{tabular}
+	\caption{Contadores para grafos \enquote{sequenciais} com duas arestas}
 	\label{1-3}
-\end{listing}
+\end{table}
 
 O número de vértices visitados é igual, tal como o número de
 comparações efetuadas. As diferenças, como seria de esperar, residem
@@ -116,7 +105,9 @@ pelos vértices para verificar se cumprem as condições.
 Como por cada vértice válido encontrado, ou seja, não marcado e cujo
 \cinline{inDegree} seja 0, teremos que reiniciar a pesquisa, no pior caso
 teremos que iterar todos os vértices menos o número de vértices já marcados,
-que aumenta por 1 unidade a cada iteração.
+que aumenta por 1 unidade a cada iteração. É de notar também que será feita
+uma iteração extra por todos os vértices, pois o contador é reiniciado
+quando o último vértice é encontrado.
 
 Além disso, para cada vértice válido, vamos ter de iterar por todas as suas
 arestas de saída. Note-se que isto num pior caso, onde todos os vértices são
@@ -128,18 +119,19 @@ somatório, obtemos:
 
 \begin{formula}[H]
 	\begin{align}
-		  & \sum_{i = 1}^{\norm{V}} \; \sum_{v=1}^{\norm{V} - i + 1}
-		\left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right)                          \\
+		  & \sum_{i = 1}^{\norm{V}} \left[
+		\sum_{v=1}^{\norm{V} - i + 1} \left( 1 + \sum_{k=1}^{deg^+(v)} 1 \right) + 1
+		\right]                                                             \\
 		= & \sum_{i = 1}^{\norm{V}} (\norm{V} - i + 1)
-		+ \sum_{v=1}^{\norm{V}} deg^+(v)                                    \\
+		+ \sum_{v=1}^{\norm{V}} deg^+(v) + \sum_{i = 1}^{\norm{V}} 1        \\
 		= & \sum_{i=1}^{\norm{V}} \norm{V} - \sum_{i=1}^{\norm{V}} i
-		+ \sum_{i=1}^{\norm{V}} 1 + \norm{E}                                \\
+		+ \sum_{i=1}^{\norm{V}} 1 + \norm{E} + \norm{V}                     \\
 		= & \norm{V}^2 - \frac{\norm{V} \cdot (\norm{V} + 1)}{2} + \norm{V}
-		+ \norm{E}                                                          \\
+		+ \norm{E} + \norm{V}                                               \\
 		= & \norm{V} \cdot \left(
-		\norm{V} - \frac{\norm{V} + 1}{2} + 1
+		\norm{V} - \frac{\norm{V} + 1}{2} + 2
 		\right) + \norm{E}                                                  \\
-		= & \norm{V} \cdot \left( \frac{\norm{V} + 1}{2} \right) + \norm{E}
+		= & \norm{V} \cdot \left( \frac{\norm{V} + 3}{2} \right) + \norm{E}
 	\end{align}
 	\caption{Complexidade do pior caso}
 \end{formula}
@@ -159,4 +151,4 @@ não afeta o número de vértices visitados.
 O melhor caso possível para este algoritmo é aquele em não existe
 nenhum vértice cujo \cinline{inDegree} seja 0, pelo que aquando da
 primeira iteração não é selecionado nenhum vértice. Como tal, o
-melhor caso é $\Omega\left(\norm{V}\right)$
+melhor caso é $\Omega\left(\norm{V}\right)$.

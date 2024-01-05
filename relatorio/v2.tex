@@ -1,14 +1,12 @@
 \chapter{Segunda versão}
 
-A segunda versão do algoritmo é bastante semelhante com a
-primeira, sendo a principal diferença o modo de como as
-arestas são "removidas". Enquanto que a primeira versão
-fazia uma cópia do grafo e removia diretamente as arestas, a
-segunda versão apenas guarda o \cinline{inDegree} de cada
-vértice num array, e depois decrementa o valor presente
-nesse array. Como tal, as conclusões a tirar quanto à
-segunda versão serão também elas bastante semelhantes com as
-conclusões da primeira versão.
+A segunda versão do algoritmo é bastante semelhante com a primeira, sendo a
+principal diferença o modo de como as arestas são "removidas". Enquanto que a
+primeira versão fazia uma cópia do grafo e removia diretamente as arestas, a
+segunda versão apenas guarda o \cinline{inDegree} de cada vértice num array, e
+depois decrementa o valor presente nesse array. Como tal, as conclusões a tirar
+quanto à segunda versão serão também elas bastante semelhantes com as conclusões
+da primeira versão.
 
 
 \section{Análise Informal}
@@ -16,36 +14,42 @@ Para a análise informal, realizaremos as experiências
 que realizamos na primeira versão, de modo a podermos
 facilmente comparar os resultados obtidos.
 
-\begin{listing}[H]
+\begin{table}[H]
 	\centering
-	\begin{minted}{text}
-                    Verts	Edges	     Cmps	    Iters
-1024 vértices:     527875	 1024	   527875	   528899
-2048 vértices:    2104323	 2048	  2104323	  2106371
-4096 vértices:    8402947	 4096	  8402947	  8407043
-8192 vértices:   33583107	 8192	 33583107	 33591299
-16384 vértices: 134275075	16384	134275075	134291459
-  \end{minted}
+	\begin{tabular}{| c || c | c | c | c |}
+		\hline
+		Vértices & Vértices visitados & Arestas visitadas & Comparações & Iterações \\
+		\hline\hline
+		1024     & 526848             & 1023              & 526848      & 527871    \\
+		2048     & 2102272            & 2047              & 2102272     & 2104319   \\
+		4096     & 8398848            & 4095              & 8398848     & 8402943   \\
+		8192     & 33574912           & 8191              & 33574912    & 33583103  \\
+		16384    & 134258688          & 16383             & 134258688   & 134275071 \\
+		\hline
+	\end{tabular}
 	\caption{Resultados da primeira experiência utilizando o segundo algoritmo}
 	\label{2-1}
-\end{listing}
+\end{table}
 
-\begin{listing}[H]
+\begin{table}[H]
 	\centering
-	\begin{minted}{text}
-                    Verts	Edges	     Cmps	     Iters
-1024 vértices:     527875	 2048	   527875	    529921
-2048 vértices:    2104323	 4094	  2104323	   2108417
-4096 vértices:    8402947	 8190	  8402947	   8411137
-8192 vértices:   33583107	16382	 33583107	  33599489
-16384 vértices: 134275075	32766	134275075	 134307841
-  \end{minted}
+	\begin{tabular}{| c || c | c | c | c |}
+		\hline
+		Vértices & Vértices visitados & Arestas visitadas & Comparações & Iterações \\
+		\hline\hline
+		1024     & 526848             & 2044              & 526848      & 528892    \\
+		2048     & 2102272            & 4092              & 2102272     & 2106364   \\
+		4096     & 8398848            & 8188              & 8398848     & 8407036   \\
+		8192     & 33574912           & 16380             & 33574912    & 33591292  \\
+		16384    & 134258688          & 32764             & 134258688   & 134291452 \\
+		\hline
+	\end{tabular}
 	\caption{Resultados da segunda experiência utilizando o segundo algoritmo}
 	\label{2-2}
-\end{listing}
+\end{table}
 
 Comparando os resultados das listagem \ref{2-1} com \ref{1-2} e da \ref{2-2} com
-\ref{1-3}, podemos concluir que de facto a performance dos algoritmos nas
+\ref{1-3}, podemos concluir que de facto o desempenho dos algoritmos nas
 métricas selecionadas é bastante semelhante.
 
 Uma vez mais, ao calcular o quociente de $T(2N)$ por $T(N)$, voltamos a obter
@@ -55,13 +59,13 @@ realizadas, mas não no número de vértices visitados.
 
 \section{Análise Formal}
 
-O segundo algoritmo tem o mesmo processo da primeira versão,
-que consiste em enquanto for possível selecionar um vértice
-não marcado com \cinline{inDegree} igual a 0, e iterar as
-arestas que desse vértice saem. Como tal, o melhor e pior
-caso para este segundo algoritmo são iguais aos do primeiro
-algoritmo.
+O segundo algoritmo tem o mesmo processo da primeira versão, que consiste em
+enquanto for possível selecionar um vértice não marcado com \cinline{inDegree}
+igual a 0, e iterar as arestas que desse vértice saem. Como tal, o melhor e pior
+caso para este segundo algoritmo são iguais aos do primeiro algoritmo com a
+exceção de que um termo extra é adicionado para a inicialização do array que
+itera pelos vértices todos uma vez.
 
-Como tal, podemos afirmar que o melhor caso é $B(V, E) = \norm{V}$,
-e o pior caso é $W(V,E) = \frac{\norm{V}^2 + \norm{V}}{2} + \norm{E}$,
-sendo $V$ o conjunto de vértices do grafo e $E$ o conjunto de arestas.
+Como tal, podemos afirmar que o melhor caso é $B(V, E) = 2\norm{V}$, e o pior
+caso é $W(V,E) = \frac{\norm{V}^2 + 5\norm{V}}{2} + \norm{E}$, sendo $V$ o
+conjunto de vértices do grafo e $E$ o conjunto de arestas. \\

@@ -17,7 +17,7 @@
 
 #include "SortedList.h"
 #include "instrumentation.h"
-#define ALLOCATIONS InstrCount[3]
+#define ALLOCATIONS InstrCount[4]
 
 struct _Vertex {
   unsigned int id;

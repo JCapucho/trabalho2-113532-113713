@@ -2,11 +2,11 @@
 
 A terceira versão do algoritmo difere das outras duas através do uso de uma
 estrutura de dados adicional, uma \textbf{\textit{Queue}}, está será utilizada
-para guardar os vértices a visitar, ou seja, que não tem arestas incidentes.
+para guardar os vértices a visitar, ou seja, que não têm arestas incidentes.
 
 \section{Análise Informal}
 
-Mais uma vez, o algoritmo foi comparado com os mesmos grafo que foram utilizados
+Mais uma vez, o algoritmo foi comparado com os mesmos grafos que foram utilizados
 para produzir as listagens \ref{1-2} e \ref{2-1}, obtendo os seguintes resultados:
 
 \begin{table}[H]
@@ -22,8 +22,7 @@ para produzir as listagens \ref{1-2} e \ref{2-1}, obtendo os seguintes resultado
 		16384    & 32768              & 16383             & 32767       & 49151     \\
 		\hline
 	\end{tabular}
-	\caption{Resultados da primeira experiência utilizando o segundo algoritmo}
-	\label{table:v3-one}
+	\caption{Resultados da primeira experiência utilizando o terceiro algoritmo}
 \end{table}
 
 Também foram recolhidos os resultados com os grafos com mais arestas
@@ -42,7 +41,6 @@ Também foram recolhidos os resultados com os grafos com mais arestas
 		\hline
 	\end{tabular}
 	\caption{Resultados da segunda experiência utilizando o terceiro algoritmo}
-	\label{table:v3-two}
 \end{table}
 
 Comparando os resultados obtidos com os dos outros algoritmos, notamos uma clara
@@ -90,5 +88,5 @@ da fórmula.
 \end{formula}
 
 Obtendo uma ordem de complexidade para o pior caso de
-$\Omega\mathcal{O}(\norm{V} + \norm{E})$.
+$\mathcal{O}(\norm{V} + \norm{E})$.
 
