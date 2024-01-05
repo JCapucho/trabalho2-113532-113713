@@ -208,9 +208,6 @@ GraphTopoSort *GraphTopoSortComputeV2(Graph *g) {
     }
 
     int out_degree = adjacents[0];
-    COMPARISONS++;
-    if (out_degree == 0)
-      continue;
 
     for (int i = 1; i < out_degree + 1; i++) {
       ITERATIONS++;

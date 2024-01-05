@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BITMAP_SLOT_SIZE (8 * sizeof(unsigned int))
-#define BITMAP_MASK(i) (1 << (i % BITMAP_SLOT_SIZE))
+#include "bitmap.h"
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
@@ -26,9 +25,8 @@ int main(int argc, char *argv[]) {
   }
 
   unsigned int numVertices = GraphGetNumVertices(graph);
-  unsigned int *visited = calloc(numVertices / BITMAP_SLOT_SIZE +
-                                     (numVertices % BITMAP_SLOT_SIZE > 0),
-                                 sizeof(unsigned int));
+  BITMAP_STORAGE *visited =
+      calloc(BITMAP_STORAGE_NEEDED(numVertices), sizeof(BITMAP_STORAGE));
 
   if (visited == NULL) {
     fprintf(stderr, "Failed to allocate visited bitmap\n");
@@ -60,7 +58,7 @@ int main(int argc, char *argv[]) {
 
       if (GraphIsDigraph(graph)) {
         printf("%u -> %u", v, w);
-      } else if ((visited[w / BITMAP_SLOT_SIZE] & BITMAP_MASK(w)) == 0) {
+      } else if (BITMAP_GET(visited, w) == 0) {
         printf("%u -- %u", v, w);
       }
 
@@ -71,7 +69,7 @@ int main(int argc, char *argv[]) {
       printf("\n");
     }
 
-    visited[v / BITMAP_SLOT_SIZE] |= BITMAP_MASK(v);
+    BITMAP_SET(visited, v);
 
     free(adjacents);
   }

@@ -11,9 +11,12 @@
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "bitmap.h"
 
 #include "SortedList.h"
 #include "instrumentation.h"
@@ -644,12 +647,27 @@ int GraphCheckInvariants(const Graph *g) {
       return 0;
   }
 
+  const size_t parallel_bytes =
+      BITMAP_STORAGE_NEEDED(g->numVertices) * sizeof(BITMAP_STORAGE);
+  // Check that there are no parallel edges
+  BITMAP_STORAGE *parallel = malloc(parallel_bytes);
+  if (parallel == NULL) {
+    if (g->isDigraph)
+      free(inDegrees);
+    return 0;
+  }
+
   unsigned int countedEdges = 0;
   ListMoveToHead(g->verticesList);
   for (unsigned int i = 0; i < ListGetSize(g->verticesList);
        ListMoveToNext(g->verticesList), i++) {
     const struct _Vertex *v = ListGetCurrentItem(g->verticesList);
     const unsigned int numEdgesVertex = ListGetSize(v->edgesList);
+
+    if (v->id != i) {
+      isValid = 0;
+      goto GraphCheckInvariantsCleanup;
+    }
 
     if (v->outDegree != numEdgesVertex) {
       isValid = 0;
@@ -663,6 +681,7 @@ int GraphCheckInvariants(const Graph *g) {
       goto GraphCheckInvariantsCleanup;
     }
 
+    memset(parallel, 0, parallel_bytes);
     // Search trough all edges
     ListMoveToHead(v->edgesList);
     for (unsigned int i = 0; i < ListGetSize(v->edgesList);
@@ -675,34 +694,22 @@ int GraphCheckInvariants(const Graph *g) {
         goto GraphCheckInvariantsCleanup;
       }
 
+      if (edge->adjVertex >= g->numVertices) {
+        isValid = 0;
+        goto GraphCheckInvariantsCleanup;
+      }
+
+      if (BITMAP_GET(parallel, edge->adjVertex) != 0) {
+        isValid = 0;
+        goto GraphCheckInvariantsCleanup;
+      }
+
+      BITMAP_SET(parallel, edge->adjVertex);
+
       // Increase the count of incident edges on the adjacent vertex
       if (g->isDigraph)
         inDegrees[edge->adjVertex]++;
     }
-
-    // TODO: Check that bigraphs mirror the edges
-    // if (!g->isDigraph) {
-    //   ListMoveToHead(v->edgesList);
-    //   for (unsigned int i = 0; i < ListGetSize(v->edgesList);
-    //        ListMoveToNext(v->edgesList), i++) {
-    //     const struct _Edge *edge = ListGetCurrentItem(v->edgesList);
-    //
-    //     ListMove(g->verticesList, edge->adjVertex);
-    //     const struct _Vertex *other_v = ListGetCurrentItem(g->verticesList);
-    //
-    //     ListMoveToHead(v->edgesList);
-    //     for (unsigned int i = 0; i < ListGetSize(v->edgesList);
-    //          ListMoveToNext(v->edgesList), i++) {
-    //       const struct _Edge *edge = ListGetCurrentItem(v->edgesList);
-    //
-    //       ListMove(g->verticesList, edge->adjVertex);
-    //       const struct _Vertex *other_v =
-    //       ListGetCurrentItem(g->verticesList);
-    //     }
-    //   }
-    //
-    //   ListMove(g->verticesList, v->id);
-    // }
 
     countedEdges += numEdgesVertex;
   }
@@ -726,6 +733,7 @@ int GraphCheckInvariants(const Graph *g) {
     isValid = 0;
 
 GraphCheckInvariantsCleanup:
+  free(parallel);
   if (g->isDigraph)
     free(inDegrees);
 
